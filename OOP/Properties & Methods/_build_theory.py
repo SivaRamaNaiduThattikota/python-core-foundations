@@ -1,0 +1,538 @@
+# Builder for Session 7D - Properties & Methods, theory.ipynb.
+# OOP sub-session 7D of 5. Deep 4-chunk. Chunk A = encapsulation + @property (getter).
+import nbformat as nbf
+from nbformat.v4 import new_notebook, new_markdown_cell
+
+cells = []
+
+STYLE = """<style>
+  * { box-sizing:border-box; word-wrap:break-word; overflow-wrap:break-word; }
+  body, .jp-RenderedHTMLCommon { padding:0 !important; margin:0 !important; overflow-x:hidden !important; }
+  h1.main-title { color:#cba6f7; font-family:'Segoe UI',sans-serif; font-size:2em; border-bottom:2px solid #45475a; padding-bottom:10px; margin-bottom:16px; }
+  .part-header { background:linear-gradient(90deg,#313244,#1e1e2e); border-left:5px solid #cba6f7; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .part-header h2 { color:#cba6f7; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .chunk-badge { display:inline-block; background:#2a1e2e; border:1px solid #cba6f7; color:#cba6f7; border-radius:20px; padding:2px 12px; font-size:0.82em; font-family:'Courier New',monospace; margin:6px 0; }
+  h3.sub { color:#89dceb; font-family:'Segoe UI',sans-serif; margin:20px 0 8px; font-size:1.02em; }
+  .theory-box { background:#2a2a3d; border-left:5px solid #89b4fa; border-radius:10px; padding:16px 22px; margin:14px 0; color:#cdd6f4; font-family:'Segoe UI',sans-serif; line-height:1.8; max-width:100%; }
+  .code-block { background:#181825; border:1px solid #313244; border-radius:8px; padding:14px 20px; font-family:'Courier New',monospace; font-size:0.9em; color:#a6e3a1; margin:10px 0; line-height:2; overflow-x:auto; max-width:100%; }
+  .output-block { background:#11111b; border:1px solid #313244; border-radius:8px; padding:12px 18px; font-family:'Courier New',monospace; font-size:0.87em; color:#cdd6f4; margin:4px 0 10px; line-height:1.9; overflow-x:auto; max-width:100%; }
+  .info-box { background:#1e2030; border-left:4px solid #89b4fa; border-radius:8px; padding:11px 16px; margin:10px 0; color:#89b4fa; font-family:'Segoe UI',sans-serif; font-size:0.92em; line-height:1.7; }
+  .note-box { background:#1c1c2e; border-left:4px solid #a6e3a1; border-radius:8px; padding:11px 16px; margin:10px 0; color:#a6e3a1; font-family:'Segoe UI',sans-serif; font-size:0.92em; line-height:1.7; }
+  .why-box { background:#2a1e2e; border-left:4px solid #cba6f7; border-radius:0 8px 8px 0; padding:10px 14px; margin:8px 0; color:#cba6f7; font-family:'Segoe UI',sans-serif; font-size:0.9em; line-height:1.7; }
+  .warn-box { background:#2a1f00; border-left:4px solid #f9e2af; border-radius:8px; padding:11px 16px; margin:10px 0; color:#f9e2af; font-family:'Segoe UI',sans-serif; font-size:0.92em; line-height:1.7; }
+  .theory-box code, .info-box code, .note-box code, .why-box code, .warn-box code { background:#313244; padding:1px 6px; border-radius:4px; color:#a6e3a1; font-family:'Courier New',monospace; font-size:0.88em; }
+  .mut-grid { display:block; margin:12px 0; }
+  .mut-card { display:inline-block; width:48%; min-width:200px; vertical-align:top; border-radius:10px; padding:14px 16px; margin-right:2%; margin-bottom:10px; font-family:'Segoe UI',sans-serif; font-size:0.88em; line-height:1.85; }
+  .mut-card:last-child { margin-right:0; }
+  .mc-imm { background:#1e2030; border:1px solid #89b4fa; border-top:3px solid #89b4fa; }
+  .mc-mut { background:#1a2e1a; border:1px solid #a6e3a1; border-top:3px solid #a6e3a1; }
+  .mc-imm .mc-title { color:#89b4fa; font-weight:bold; margin-bottom:8px; }
+  .mc-mut .mc-title { color:#a6e3a1; font-weight:bold; margin-bottom:8px; }
+  .mc-body { color:#cdd6f4; font-family:'Courier New',monospace; font-size:0.86em; }
+  .ex-header { background:linear-gradient(90deg,#1a2e1a,#1e1e2e); border-left:5px solid #a6e3a1; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .ex-header h2 { color:#a6e3a1; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .warn-header { background:linear-gradient(90deg,#2a1f00,#1e1e2e); border-left:5px solid #f9e2af; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .warn-header h2 { color:#f9e2af; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .ex-block, .edge-block { background:#1e1e2e; border:1px solid #313244; border-radius:10px; padding:16px 20px; margin:12px 0; }
+  .ex-title { color:#a6e3a1; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.95em; margin-bottom:10px; }
+  .ex-badge { display:inline-block; background:#1a2e1a; border:1px solid #a6e3a1; color:#a6e3a1; border-radius:20px; padding:2px 10px; font-size:0.8em; font-family:'Courier New',monospace; margin-right:8px; }
+  .edge-title { color:#f9e2af; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.95em; margin-bottom:10px; }
+  .edge-badge { display:inline-block; background:#2a1f00; border:1px solid #f9e2af; color:#f9e2af; border-radius:20px; padding:2px 10px; font-size:0.8em; font-family:'Courier New',monospace; margin-right:8px; }
+  .rule-block, .trap-block, .ml-block, .exr-block, .cc-block { background:#1e1e2e; border:1px solid #313244; border-radius:10px; padding:14px 18px; margin:10px 0; }
+  .rule-title { color:#cba6f7; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.92em; margin-bottom:6px; }
+  .rule-badge { display:inline-block; background:#2a1e2e; border:1px solid #cba6f7; color:#cba6f7; border-radius:20px; padding:2px 10px; font-size:0.76em; font-family:'Courier New',monospace; margin-right:8px; }
+  .trap-header { background:linear-gradient(90deg,#2e1e1e,#1e1e2e); border-left:5px solid #f38ba8; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .trap-header h2 { color:#f38ba8; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .trap-title { color:#f38ba8; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.92em; margin-bottom:6px; }
+  .trap-badge { display:inline-block; background:#2e1e1e; border:1px solid #f38ba8; color:#f38ba8; border-radius:20px; padding:2px 10px; font-size:0.76em; font-family:'Courier New',monospace; margin-right:8px; }
+  .ml-header { background:linear-gradient(90deg,#1a2e1a,#1e1e2e); border-left:5px solid #a6e3a1; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .ml-header h2 { color:#a6e3a1; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .ml-title { color:#a6e3a1; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.92em; margin-bottom:6px; }
+  .ml-badge { display:inline-block; background:#1a2e1a; border:1px solid #a6e3a1; color:#a6e3a1; border-radius:20px; padding:2px 10px; font-size:0.76em; font-family:'Courier New',monospace; margin-right:8px; }
+  .body-txt { color:#cdd6f4; font-family:'Segoe UI',sans-serif; font-size:0.9em; line-height:1.7; }
+  .body-txt code { background:#313244; padding:1px 5px; border-radius:4px; color:#a6e3a1; font-family:'Courier New',monospace; font-size:0.86em; }
+  .interview-header { background:linear-gradient(90deg,#2a1e2e,#1e1e2e); border-left:5px solid #cba6f7; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .interview-header h2 { color:#cba6f7; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .sub-header { background:linear-gradient(90deg,#1e2030,#1e1e2e); border-left:4px solid #89b4fa; border-radius:8px; padding:8px 16px; margin:16px 0 8px; }
+  .sub-header h3 { color:#89b4fa; margin:0; font-size:0.95em; font-family:'Segoe UI',sans-serif; }
+  .qa-block { background:#1e1e2e; border:1px solid #313244; border-radius:10px; padding:11px 16px; margin:8px 0; }
+  .qa-q { color:#f9e2af; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.89em; margin-bottom:5px; line-height:1.5; }
+  .qa-a { color:#cdd6f4; font-family:'Segoe UI',sans-serif; font-size:0.87em; line-height:1.7; }
+  .qa-a code, .qa-q code { background:#313244; padding:1px 5px; border-radius:4px; color:#a6e3a1; font-family:'Courier New',monospace; font-size:0.85em; }
+  .q-num { display:inline-block; min-width:22px; height:22px; border-radius:50%; background:#2a1e2e; border:2px solid #cba6f7; color:#cba6f7; font-weight:bold; font-size:0.75em; text-align:center; line-height:19px; font-family:'Courier New',monospace; margin-right:8px; }
+  .cc-title { color:#89b4fa; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.91em; margin-bottom:8px; }
+  .cc-badge { display:inline-block; border-radius:20px; padding:2px 10px; font-size:0.74em; font-family:'Courier New',monospace; margin-right:8px; }
+  .badge-easy { background:#1a2e1a; border:1px solid #a6e3a1; color:#a6e3a1; }
+  .badge-med { background:#1e2030; border:1px solid #89b4fa; color:#89b4fa; }
+  .badge-hard { background:#2e1e1e; border:1px solid #f38ba8; color:#f38ba8; }
+  details.sol { background:#181825; border:1px solid #313244; border-radius:8px; padding:8px 14px; margin:8px 0; }
+  details.sol summary { color:#a6e3a1; font-family:'Segoe UI',sans-serif; font-size:0.85em; cursor:pointer; font-weight:bold; }
+  .hint-box { background:#1c1c2e; border-left:4px solid #89dceb; border-radius:0 8px 8px 0; padding:8px 12px; margin:6px 0; color:#89dceb; font-family:'Segoe UI',sans-serif; font-size:0.85em; line-height:1.6; }
+  .hint-box code { background:#313244; padding:1px 5px; border-radius:4px; color:#a6e3a1; font-family:'Courier New',monospace; font-size:0.82em; }
+  .exr-title { color:#cdd6f4; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.9em; margin-bottom:6px; }
+  .summary-header { background:linear-gradient(90deg,#1e2030,#1e1e2e); border-left:5px solid #89b4fa; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .summary-header h2 { color:#89b4fa; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  table.summary { width:100%; border-collapse:collapse; font-family:'Segoe UI',sans-serif; font-size:0.86em; margin:12px 0; }
+  table.summary th { background:#313244; color:#cba6f7; padding:9px 14px; text-align:left; border:1px solid #45475a; }
+  table.summary td { background:#1e1e2e; color:#cdd6f4; padding:8px 14px; border:1px solid #313244; vertical-align:top; line-height:1.6; }
+  table.summary td:first-child { color:#89dceb; }
+  table.summary td:last-child { text-align:center; font-weight:bold; }
+  .freq-vh { color:#f38ba8; } .freq-h { color:#f9e2af; } .freq-m { color:#89b4fa; }
+  .divider { border:none; border-top:1px solid #313244; margin:22px 0; }
+  .cc { color:#6c7086; } .cs { color:#f9e2af; } .ck { color:#cba6f7; } .cm { color:#f38ba8; } .cn { color:#fab387; }
+</style>
+"""
+
+def md(body):
+    cells.append(new_markdown_cell(STYLE + body))
+
+# ── Title ──────────────────────────────────────────────────────────────
+md(
+'<h1 class="main-title">🐍 Session 7D — Properties &amp; Methods</h1>'
+'<div class="info-box"><strong>OOP sub-session 7D of 5.</strong> &nbsp;<strong>Part 1:</strong> '
+'Theory → Example → Edge Cases · deep 4-chunk.</div>'
+'<div class="chunk-badge">Part 1 · Chunk A — Encapsulation &amp; <code>@property</code> (getter)</div>'
+'<div class="theory-box" style="border-left-color:#cba6f7;">'
+'This is <strong style="color:#89b4fa">encapsulation</strong> — the fourth pillar — and the direct payoff of '
+'Session 6: <code>@property</code>, <code>@classmethod</code>, and <code>@staticmethod</code> are decorators '
+'applied to methods. Chunk A covers <code>@property</code> getters (computed / read-only attributes); B adds '
+'setters &amp; deleters (validation); C is <code>@classmethod</code> (alternative constructors) &amp; '
+'<code>@staticmethod</code>; D is name mangling &amp; <code>__slots__</code>.</div>'
+)
+
+# ── 1.1 encapsulation ──────────────────────────────────────────────────
+md(
+'<div class="part-header"><h2>1. Theory</h2></div>'
+'<h3 class="sub">🔹 1.1 &nbsp;Encapsulation — a clean interface over internal state</h3>'
+'<div class="theory-box">Encapsulation means exposing a <strong>stable interface</strong> while keeping '
+'implementation details internal, so you can change internals without breaking callers. Python has no true '
+'"private" — it uses <strong>convention</strong>: a leading underscore <code>_x</code> signals "internal, '
+'don\'t touch." Attributes are public by default; you add control only where you need it — with '
+'<code>@property</code>.</div>'
+'<div class="info-box">💡 <strong>SQL / Power BI anchor:</strong> like exposing a clean <em>view</em> or a '
+'named measure while the underlying tables/logic stay hidden — consumers depend on the interface, not the '
+'internals.</div>'
+)
+
+# ── 1.2 @property getter ───────────────────────────────────────────────
+md(
+'<h3 class="sub">🔹 1.2 &nbsp;<code>@property</code> — a method that reads like an attribute</h3>'
+'<div class="theory-box"><code>@property</code> turns a method into a <strong>computed attribute</strong>: '
+'you access it as <code>obj.x</code> (no parentheses), but a function runs behind the scenes. With only a '
+'getter, it\'s <strong>read-only</strong>. This replaces Java-style <code>get_x()</code> methods — the call '
+'site stays clean attribute access.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Circle</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, radius): self._radius = radius   <span class="cc"># _radius: internal</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@property</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">radius</span>(self): <span class="ck">return</span> self._radius       <span class="cc"># read like an attribute</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@property</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">area</span>(self): <span class="ck">return</span> <span class="cn">3.14159</span> * self._radius ** <span class="cn">2</span>   <span class="cc"># computed each access</span><br>'
+'<br>'
+'c = <span class="cm">Circle</span>(<span class="cn">2</span>)<br>'
+'c.radius   <span class="cc"># 2         - no parentheses</span><br>'
+'c.area     <span class="cc"># 12.56636  - recomputed on every read</span><br>'
+'c.area = <span class="cn">10</span>   <span class="cc"># AttributeError: property \'area\' has no setter (read-only)</span></div>'
+'<div class="output-block">radius: 2<br>area: 12.56636<br>c.area = 10  ->  AttributeError: property \'area\' of \'Circle\' object has no setter</div>'
+'<div class="why-box"><strong>Why it matters:</strong> the killer feature is that you can start with a plain '
+'attribute (<code>self.radius = radius</code>) and <em>later</em> promote it to a <code>@property</code> to '
+'add validation or computation — <strong>without changing a single call site</strong> (callers still write '
+'<code>c.radius</code>). That\'s why Python code doesn\'t pre-emptively write getters/setters: add them only '
+'when needed.</div>'
+)
+
+# ── 1.3 computed property + read-only ──────────────────────────────────
+md(
+'<h3 class="sub">🔹 1.3 &nbsp;Computed properties always reflect current state</h3>'
+'<div class="theory-box">Because the getter runs on every access, a computed property is never stale — it '
+'derives from the current attributes each time. Perfect for values that <em>depend on</em> other state '
+'(a full name, an area, a total).</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Person</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, first, last): self.first = first; self.last = last<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@property</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">full_name</span>(self): <span class="ck">return</span> <span class="cs">f"{self.first} {self.last}"</span><br>'
+'<br>'
+'p = <span class="cm">Person</span>(<span class="cs">"Siva"</span>, <span class="cs">"N"</span>)<br>'
+'p.full_name   <span class="cc"># \'Siva N\'</span><br>'
+'p.first = <span class="cs">"Ram"</span><br>'
+'p.full_name   <span class="cc"># \'Ram N\'  - reflects the change automatically</span></div>'
+'<div class="output-block">Siva N<br>Ram N</div>'
+'<div class="mut-grid">'
+'<div class="mut-card mc-mut"><div class="mc-title">🅖 <code>get_full_name()</code> method</div>'
+'<div class="mc-body">called with ()<br>looks like an action<br>callers: obj.get_full_name()</div></div>'
+'<div class="mut-card mc-imm"><div class="mc-title">🅟 <code>full_name</code> property</div>'
+'<div class="mc-body">accessed with no ()<br>looks like data<br>callers: obj.full_name</div></div>'
+'</div>'
+'<div class="note-box">💡 Use a property when the value <em>reads like an attribute</em> (a noun: <code>area</code>, '
+'<code>full_name</code>, <code>is_empty</code>) and is cheap to compute. Use a regular method for actions '
+'(verbs: <code>save()</code>, <code>train()</code>) or anything expensive.</div>'
+'<hr class="divider">'
+'<div style="background:#1e1e2e; border-left:4px solid #cba6f7; padding:16px 20px; border-radius:8px; font-family:monospace; color:#cdd6f4;">'
+'<h4 style="color:#cba6f7; margin:0 0 12px 0;">🔑 Chunk A — Key Takeaways</h4>'
+'<ul style="margin:0; padding-left:20px; line-height:2.1">'
+'<li>Encapsulation = a stable interface over internal state; <code>_x</code> means "internal" by convention</li>'
+'<li><code>@property</code> makes a method read like an attribute (no <code>()</code>); getter-only = read-only</li>'
+'<li>You can promote a plain attribute to a property later <strong>without changing callers</strong></li>'
+'<li>Computed properties always reflect current state; use them for cheap noun-like values, methods for actions</li>'
+'</ul></div>'
+)
+
+# ══════════════════════════ CHUNK B ══════════════════════════
+md(
+'<div class="chunk-badge">Part 1 · Chunk B — Setters &amp; Deleters</div>'
+'<h3 class="sub">🔹 1.4 &nbsp;<code>@x.setter</code> — make a property writable, with validation</h3>'
+'<div class="theory-box">Add a setter with <code>@&lt;name&gt;.setter</code> to make the property assignable. '
+'Now <code>obj.x = v</code> runs your setter — the ideal place to <strong>validate</strong> before storing. '
+'This is the real reason properties exist: a plain public attribute can\'t reject bad values; a property '
+'can.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Temperature</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, celsius=<span class="cn">0</span>): self.celsius = celsius   <span class="cc"># goes THROUGH the setter</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@property</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">celsius</span>(self): <span class="ck">return</span> self._celsius<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@celsius.setter</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">celsius</span>(self, value):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">if</span> value &lt; -<span class="cn">273.15</span>: <span class="ck">raise</span> ValueError(<span class="cs">"below absolute zero"</span>)<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self._celsius = value          <span class="cc"># only stored if valid</span><br>'
+'<br>'
+'t = <span class="cm">Temperature</span>(<span class="cn">25</span>)<br>'
+'t.celsius = <span class="cn">30</span>       <span class="cc"># runs the setter (validated) -> 30</span><br>'
+'t.celsius = -<span class="cn">300</span>     <span class="cc"># ValueError: below absolute zero</span></div>'
+'<div class="output-block">get 25<br>set 30<br>t.celsius = -300  ->  ValueError: below absolute zero</div>'
+'<div class="why-box"><strong>Why it matters:</strong> because <code>__init__</code> does <code>self.celsius '
+'= celsius</code>, the assignment goes <em>through the setter</em> — so <code>Temperature(-300)</code> is '
+'rejected at construction too. Validation lives in <strong>one place</strong> and covers every write '
+'(construction and later). Verified.</div>'
+)
+
+md(
+'<h3 class="sub">🔹 1.5 &nbsp;<code>@x.deleter</code> and the read-only / read-write spectrum</h3>'
+'<div class="theory-box">A <code>@&lt;name&gt;.deleter</code> runs on <code>del obj.x</code> (e.g. to clear a '
+'cache or reset state). Which of the three you define sets the access level: getter only = '
+'<strong>read-only</strong>; getter + setter = <strong>read-write</strong>; add a deleter for '
+'<code>del</code>.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Config</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self): self._cache = {<span class="cs">"x"</span>: <span class="cn">1</span>}<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@property</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">cache</span>(self): <span class="ck">return</span> self._cache<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@cache.deleter</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">cache</span>(self): self._cache = {}   <span class="cc"># del cfg.cache resets it</span><br>'
+'<br>'
+'cfg = <span class="cm">Config</span>()<br>'
+'<span class="ck">del</span> cfg.cache<br>'
+'cfg.cache   <span class="cc"># {}  - deleter ran</span></div>'
+'<div class="output-block">before {\'x\': 1}<br>after {}</div>'
+'<div class="mut-grid">'
+'<div class="mut-card mc-imm"><div class="mc-title">🔒 getter only</div>'
+'<div class="mc-body">read-only<br>obj.x works<br>obj.x = v -> AttributeError</div></div>'
+'<div class="mut-card mc-mut"><div class="mc-title">🔓 getter + setter</div>'
+'<div class="mc-body">read-write, validated<br>obj.x and obj.x = v both work<br>+ deleter for del obj.x</div></div>'
+'</div>'
+'<div class="note-box">💡 The three share the property\'s name — you write <code>def celsius(self)</code> three '
+'times, decorated with <code>@property</code>, <code>@celsius.setter</code>, <code>@celsius.deleter</code>. '
+'The setter/deleter must come <em>after</em> the <code>@property</code> getter that defines the name.</div>'
+'<hr class="divider">'
+'<div style="background:#1e1e2e; border-left:4px solid #cba6f7; padding:14px 18px; border-radius:8px; font-family:monospace; color:#cdd6f4;">'
+'<h4 style="color:#cba6f7; margin:0 0 10px 0;">🔑 Chunk B — Key Takeaways</h4>'
+'<ul style="margin:0; padding-left:20px; line-height:2.0">'
+'<li><code>@x.setter</code> makes a property writable and is the place to <strong>validate</strong> before storing</li>'
+'<li>Because <code>__init__</code> assigns through the setter, validation covers construction too</li>'
+'<li><code>@x.deleter</code> runs on <code>del obj.x</code>; getter-only = read-only, getter+setter = read-write</li>'
+'</ul></div>'
+)
+
+# ══════════════════════════ CHUNK C ══════════════════════════
+md(
+'<div class="chunk-badge">Part 1 · Chunk C — <code>@classmethod</code> &amp; <code>@staticmethod</code></h3></div>'
+'<h3 class="sub">🔹 1.6 &nbsp;<code>@classmethod</code> — alternative constructors</h3>'
+'<div class="theory-box">A <code>@classmethod</code> receives the <strong>class</strong> (<code>cls</code>) '
+'instead of an instance. Its headline use is an <strong>alternative constructor</strong> (factory): build an '
+'instance from some other input via <code>cls(...)</code>. Using <code>cls</code> (not the hard-coded class '
+'name) means it also works correctly for subclasses.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Date</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, y, m, d): self.y = y; self.m = m; self.d = d<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@classmethod</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">from_string</span>(cls, s):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y, m, d = <span class="cm">map</span>(<span class="cm">int</span>, s.<span class="cm">split</span>(<span class="cs">"-"</span>))<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> cls(y, m, d)          <span class="cc"># cls, not Date -> subclass-friendly</span><br>'
+'<br>'
+'<span class="cm">Date</span>.from_string(<span class="cs">"2024-02-29"</span>)   <span class="cc"># Date(2024, 2, 29)</span><br>'
+'<br>'
+'<span class="ck">class</span> <span class="cm">SmartDate</span>(Date): <span class="ck">pass</span><br>'
+'<span class="cm">type</span>(SmartDate.from_string(<span class="cs">"2024-1-1"</span>)).__name__   <span class="cc"># \'SmartDate\' - cls did that</span></div>'
+'<div class="output-block">Date(2024, 2, 29)<br>SmartDate</div>'
+'<div class="info-box">💡 <strong>ML anchor:</strong> this is the <code>Model.from_pretrained(name)</code> / '
+'<code>Estimator.from_config(cfg)</code> / <code>DataFrame.from_dict(d)</code> pattern — a classmethod that '
+'builds a configured instance from external data. Ubiquitous in ML libraries.</div>'
+'<h3 class="sub">🔹 1.7 &nbsp;<code>@staticmethod</code> — a plain function namespaced under the class</h3>'
+'<div class="theory-box">A <code>@staticmethod</code> takes neither <code>self</code> nor <code>cls</code> — '
+'it\'s just a regular function that logically belongs to the class. Use it for utilities related to the class '
+'that don\'t touch instance or class state.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Date</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@staticmethod</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">is_leap</span>(year):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> year % <span class="cn">4</span> == <span class="cn">0</span> <span class="ck">and</span> (year % <span class="cn">100</span> != <span class="cn">0</span> <span class="ck">or</span> year % <span class="cn">400</span> == <span class="cn">0</span>)<br>'
+'<br>'
+'<span class="cm">Date</span>.is_leap(<span class="cn">2024</span>), <span class="cm">Date</span>.is_leap(<span class="cn">1900</span>)   <span class="cc"># (True, False)</span></div>'
+'<div class="output-block">True False</div>'
+'<table class="summary">'
+'<tr><th>Method type</th><th>First arg</th><th>Use for</th></tr>'
+'<tr><td>instance method</td><td><code>self</code></td><td>behavior that reads/writes instance state</td></tr>'
+'<tr><td><code>@classmethod</code></td><td><code>cls</code></td><td>alternative constructors; class-level state</td></tr>'
+'<tr><td><code>@staticmethod</code></td><td>(none)</td><td>related utility that needs no instance/class</td></tr>'
+'</table>'
+'<hr class="divider">'
+'<div style="background:#1e1e2e; border-left:4px solid #cba6f7; padding:14px 18px; border-radius:8px; font-family:monospace; color:#cdd6f4;">'
+'<h4 style="color:#cba6f7; margin:0 0 10px 0;">🔑 Chunk C — Key Takeaways</h4>'
+'<ul style="margin:0; padding-left:20px; line-height:2.0">'
+'<li><code>@classmethod</code> gets <code>cls</code> — the alternative-constructor pattern (<code>from_string</code>/<code>from_dict</code>/<code>from_pretrained</code>)</li>'
+'<li>Use <code>cls(...)</code>, not the class name, so factories work for subclasses</li>'
+'<li><code>@staticmethod</code> gets neither <code>self</code> nor <code>cls</code> — a related utility function</li>'
+'</ul></div>'
+)
+
+# ══════════════════════════ CHUNK D ══════════════════════════
+md(
+'<div class="chunk-badge">Part 1 · Chunk D — Name Mangling, <code>__slots__</code>, Examples &amp; Edge Cases</div>'
+'<h3 class="sub">🔹 1.8 &nbsp;Name mangling — <code>__x</code> avoids subclass clashes</h3>'
+'<div class="theory-box">A <strong>double</strong> leading underscore (no trailing), <code>__x</code>, triggers '
+'<strong>name mangling</strong>: Python rewrites it to <code>_ClassName__x</code>. This isn\'t "private" — '
+'it\'s to prevent accidental name collisions between a base class and its subclasses. A <em>single</em> '
+'underscore <code>_x</code> is convention only (no mangling).</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Base</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self): self.__secret = <span class="cn">1</span>   <span class="cc"># stored as _Base__secret</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">reveal</span>(self): <span class="ck">return</span> self.__secret<br>'
+'<br>'
+'b = <span class="cm">Base</span>()<br>'
+'b.reveal()          <span class="cc"># 1</span><br>'
+'b.__secret          <span class="cc"># AttributeError - the name was mangled</span><br>'
+'b._Base__secret     <span class="cc"># 1  - accessible via the mangled name (not truly private)</span></div>'
+'<div class="output-block">reveal: 1<br>b.__secret -> AttributeError<br>b._Base__secret: 1</div>'
+'<div class="note-box">💡 Use <code>_x</code> (single) for "internal, please don\'t touch" — the normal choice. '
+'Reserve <code>__x</code> (double) for the rare case where you truly need to avoid a subclass overriding an '
+'attribute name. Neither is real access control; Python trusts the programmer.</div>'
+'<h3 class="sub">🔹 1.9 &nbsp;<code>__slots__</code> — fixed attributes, less memory, typo protection</h3>'
+'<div class="theory-box">Declaring <code>__slots__</code> lists the only attributes instances may have. Python '
+'then skips the per-instance <code>__dict__</code>, saving memory (big for millions of objects) and '
+'<strong>blocking new attributes</strong> — so a typo\'d attribute raises instead of silently creating one '
+'(7A trap). Trade-off: no dynamic attributes.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Point</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;__slots__ = (<span class="cs">"x"</span>, <span class="cs">"y"</span>)         <span class="cc"># only x and y allowed</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, x, y): self.x = x; self.y = y<br>'
+'<br>'
+'p = <span class="cm">Point</span>(<span class="cn">1</span>, <span class="cn">2</span>)<br>'
+'<span class="cm">hasattr</span>(p, <span class="cs">"__dict__"</span>)   <span class="cc"># False - no per-instance dict</span><br>'
+'p.z = <span class="cn">3</span>                <span class="cc"># AttributeError: \'Point\' object has no attribute \'z\'</span></div>'
+'<div class="output-block">x, y: 1 2 | has __dict__: False<br>p.z = 3 -> AttributeError: \'Point\' object has no attribute \'z\'</div>'
+'<div class="info-box">💡 <strong>ML anchor:</strong> <code>__slots__</code> is a real optimization when you '
+'create millions of small objects (nodes, records, feature structs) — less memory and faster attribute '
+'access. Most classes don\'t need it, but it\'s a known lever.</div>'
+# ── 2. Examples ──
+'<div class="ex-header"><h2>2. Example</h2></div>'
+'<div class="ex-block"><div class="ex-title"><span class="ex-badge">Ex 1</span> Validated property — an invariant that can\'t be broken</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Account</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, balance=<span class="cn">0</span>): self.balance = balance<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@property</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">balance</span>(self): <span class="ck">return</span> self._balance<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@balance.setter</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">balance</span>(self, v):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">if</span> v &lt; <span class="cn">0</span>: <span class="ck">raise</span> ValueError(<span class="cs">"negative balance"</span>)<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self._balance = v<br>'
+'a = <span class="cm">Account</span>(<span class="cn">100</span>); a.balance = -<span class="cn">5</span>   <span class="cc"># ValueError - invariant protected everywhere</span></div>'
+'<div class="output-block">a.balance = -5  ->  ValueError: negative balance</div></div>'
+'<div class="ex-block"><div class="ex-title"><span class="ex-badge">Ex 2</span> Alternative constructor — <code>from_dict</code></div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">User</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, name, age): self.name = name; self.age = age<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@classmethod</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">from_dict</span>(cls, d): <span class="ck">return</span> cls(d[<span class="cs">"name"</span>], d[<span class="cs">"age"</span>])<br>'
+'<span class="cm">User</span>.from_dict({<span class="cs">"name"</span>: <span class="cs">"Siva"</span>, <span class="cs">"age"</span>: <span class="cn">27</span>})   <span class="cc"># User(\'Siva\', 27)</span></div>'
+'<div class="output-block">User(\'Siva\', 27)</div>'
+'<div class="note-box">The <code>from_dict</code>/<code>from_json</code> factory — how you rebuild objects from API/DB rows.</div></div>'
+'<div class="ex-block"><div class="ex-title"><span class="ex-badge">Ex 3</span> Static utility on a class</div>'
+'<div class="code-block"><span class="cm">Date</span>.is_leap(<span class="cn">2024</span>)   <span class="cc"># True - a related helper, no instance needed</span></div>'
+'<div class="output-block">True</div></div>'
+'<div class="ex-block"><div class="ex-title"><span class="ex-badge">Ex 4</span> <code>__slots__</code> — locked attribute set</div>'
+'<div class="code-block"><span class="ck">class</span> <span class="cm">Point</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;__slots__ = (<span class="cs">"x"</span>, <span class="cs">"y"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, x, y): self.x = x; self.y = y<br><span class="cm">Point</span>(<span class="cn">1</span>,<span class="cn">2</span>).z = <span class="cn">3</span>   <span class="cc"># AttributeError - typo protection + memory saving</span></div>'
+'<div class="output-block">AttributeError: \'Point\' object has no attribute \'z\'</div></div>'
+# ── 3. Edge Cases ──
+'<div class="warn-header"><h2>3. Edge Cases</h2></div>'
+'<p style="color:#cdd6f4;font-family:\'Segoe UI\',sans-serif;font-size:0.92em;margin:0 0 12px 0">All outputs verified by running.</p>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 1</span> The property-setter recursion trap</div>'
+'<div class="code-block"><span class="cm">@x.setter</span><br><span class="ck">def</span> <span class="cm">x</span>(self, v): self.x = v   <span class="cc"># BUG: assigns to the property again -> RecursionError</span></div>'
+'<div class="output-block">RecursionError: maximum recursion depth exceeded</div>'
+'<div class="why-box"><strong>Why:</strong> <code>self.x = v</code> inside the <code>x</code> setter calls the '
+'setter again, forever. Store to the <strong>backing attribute</strong>: <code>self._x = v</code>. The most '
+'common property bug.</div></div>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 2</span> <code>__x</code> is mangled, not private</div>'
+'<div class="code-block">b.__secret        <span class="cc"># AttributeError</span><br>b._Base__secret   <span class="cc"># 1  - still reachable via the mangled name</span></div>'
+'<div class="output-block">__secret -> AttributeError | _Base__secret -> 1</div>'
+'<div class="why-box"><strong>Why:</strong> mangling renames <code>__x</code> to <code>_Class__x</code> — it '
+'discourages access and avoids subclass clashes, but it\'s not real privacy. Python has no enforced access '
+'control by design.</div></div>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 3</span> <code>__slots__</code> forbids new attributes (and removes <code>__dict__</code>)</div>'
+'<div class="code-block">p.z = <span class="cn">3</span>   <span class="cc"># AttributeError; hasattr(p, "__dict__") is False</span></div>'
+'<div class="output-block">AttributeError: \'Point\' object has no attribute \'z\'</div>'
+'<div class="why-box"><strong>Why:</strong> that\'s the feature — typo protection + memory. But it means you '
+'<em>can\'t</em> add ad-hoc attributes; and a subclass without its own <code>__slots__</code> reintroduces a '
+'<code>__dict__</code>.</div></div>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 4</span> <code>@classmethod</code> uses <code>cls</code>, so factories respect subclasses</div>'
+'<div class="code-block"><span class="cm">type</span>(SmartDate.from_string(<span class="cs">"2024-1-1"</span>)).__name__   <span class="cc"># \'SmartDate\', not \'Date\'</span></div>'
+'<div class="output-block">SmartDate</div>'
+'<div class="why-box"><strong>Why:</strong> because the factory does <code>return cls(...)</code>, calling it on '
+'a subclass builds a subclass instance. Hard-coding <code>Date(...)</code> would wrongly return a base '
+'instance.</div></div>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 5</span> A <code>@staticmethod</code> works on the class or an instance</div>'
+'<div class="code-block"><span class="cm">Date</span>.is_leap(<span class="cn">2024</span>)        <span class="cc"># True</span><br><span class="cm">Date</span>(<span class="cn">2024</span>,<span class="cn">1</span>,<span class="cn">1</span>).is_leap(<span class="cn">2024</span>)   <span class="cc"># True - same, no self passed</span></div>'
+'<div class="output-block">True | True</div>'
+'<div class="why-box"><strong>Why:</strong> a static method ignores the instance entirely, so both call styles '
+'work. Prefer calling it on the class (<code>Date.is_leap</code>) to signal it doesn\'t use instance state.</div></div>'
+'<hr class="divider">'
+'<div class="info-box">📎 <strong>End of 7D Part 1</strong> (Chunks A–D: encapsulation &amp; <code>@property</code>, '
+'setters/deleters, <code>@classmethod</code>/<code>@staticmethod</code>, name mangling &amp; <code>__slots__</code>, '
+'4 examples, 5 edge cases). <strong>Part 2</strong> — Golden Rules → Common Traps → Exercise. '
+'<strong>Part 3</strong> — ML Real-World → Interview Q&amp;A → Summary. Then <strong>7E — GIL &amp; '
+'Concurrency</strong>.</div>'
+)
+
+# ══════════════════════════ PART 2 ══════════════════════════
+md(
+'<div class="info-box"><strong>Part 2:</strong> Golden Rules → Common Traps → Exercise</div>'
+'<div class="part-header"><h2>4. Golden Rules</h2></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 1</span> Start with a plain public attribute; add a <code>@property</code> only when you need computation or validation.</div>'
+'<div class="body-txt">Because the call site is identical (<code>obj.x</code>), you can promote later without breaking callers. Don\'t pre-write getters/setters.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 2</span> Put validation in the setter; store to the backing attribute (<code>self._x</code>).</div>'
+'<div class="body-txt">One place enforces the invariant for every write, including construction. Never <code>self.x = v</code> inside the <code>x</code> setter (recursion).</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 3</span> Getter-only for read-only / computed values; add a setter only if it should be writable.</div>'
+'<div class="body-txt">Prefer read-only unless mutation is genuinely part of the interface.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 4</span> Use <code>@classmethod</code> for alternative constructors; return <code>cls(...)</code>.</div>'
+'<div class="body-txt"><code>from_dict</code>/<code>from_string</code>/<code>from_pretrained</code>; <code>cls</code> keeps them subclass-correct.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 5</span> Use <code>@staticmethod</code> for a related helper that needs no <code>self</code>/<code>cls</code>.</div>'
+'<div class="body-txt">If it doesn\'t touch instance or class state, make it static (or a module function).</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 6</span> Prefer <code>_x</code> (single underscore) for "internal"; reserve <code>__x</code> for real clash-avoidance.</div>'
+'<div class="body-txt">Neither is true privacy; single underscore is the normal signal.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 7</span> Reach for <code>__slots__</code> when you have very many small instances.</div>'
+'<div class="body-txt">Saves memory and blocks attribute typos — but gives up dynamic attributes and a <code>__dict__</code>.</div></div>'
+)
+
+md(
+'<div class="trap-header"><h2>5. Common Traps</h2></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 1</span> Setter recursion.</div>'
+'<div class="body-txt"><code>self.x = v</code> in the <code>x</code> setter → <code>RecursionError</code>. <strong>Fix:</strong> store to <code>self._x</code>.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 2</span> Property name == backing attribute name.</div>'
+'<div class="body-txt"><code>@property def x</code> plus <code>self.x = ...</code> clashes. <strong>Fix:</strong> back it with a differently-named <code>self._x</code>.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 3</span> Thinking <code>__x</code> is private.</div>'
+'<div class="body-txt">It\'s mangled to <code>_Class__x</code> and still reachable. <strong>Fix:</strong> treat any underscore as advisory, not enforced.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 4</span> Expecting to add attributes to a <code>__slots__</code> class.</div>'
+'<div class="body-txt"><code>AttributeError</code>; also a subclass without its own <code>__slots__</code> re-adds a <code>__dict__</code>. <strong>Fix:</strong> know the trade-offs before using it.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 5</span> Hard-coding the class name in a <code>@classmethod</code> factory.</div>'
+'<div class="body-txt"><code>return Date(...)</code> breaks subclasses. <strong>Fix:</strong> <code>return cls(...)</code>.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 6</span> Over-using properties for expensive work.</div>'
+'<div class="body-txt">A property looks free but runs code on every access. <strong>Fix:</strong> use a method for expensive ops, or <code>functools.cached_property</code>.</div></div>'
+)
+
+md(
+'<div class="part-header"><h2>6. Exercise</h2></div>'
+'<div class="body-txt" style="margin-bottom:10px">Twelve problems, easy → hard, across properties / setters / classmethods / staticmethods / slots. Attempt each in <code>01_properties.ipynb</code>; hints only here — solutions in <code>solutions.ipynb</code>.</div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-easy">Easy</span> E1 — <code>Rectangle(w, h)</code> with a read-only <code>@property area</code></div><div class="hint-box">💡 Getter returns <code>self.w * self.h</code>; no setter → read-only.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-easy">Easy</span> E2 — <code>Person(first, last)</code> with a <code>full_name</code> property</div><div class="hint-box">💡 f-string over <code>self.first</code>/<code>self.last</code>.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-easy">Easy</span> E3 — <code>Circle(radius)</code> with a read-only <code>diameter</code> property</div><div class="hint-box">💡 <code>return self.radius * 2</code>.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E4 — <code>Age</code> with a validated setter (reject negatives)</div><div class="hint-box">💡 <code>@years.setter</code> raises <code>ValueError</code> if <code>v &lt; 0</code>; store <code>self._years</code>.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E5 — <code>Grade</code> with a <code>score</code> setter clamped/validated to 0–100</div><div class="hint-box">💡 <code>if not 0 &lt;= v &lt;= 100: raise ValueError</code>.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E6 — <code>Money(cents)</code> with a read-only <code>dollars</code> property</div><div class="hint-box">💡 <code>return self.cents / 100</code>. Store cents (int), expose dollars (derived).</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E7 — <code>Point.from_tuple((x, y))</code> — a <code>@classmethod</code> constructor</div><div class="hint-box">💡 <code>return cls(t[0], t[1])</code>.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E8 — <code>Color.from_hex("#ff0080")</code> — classmethod parsing hex</div><div class="hint-box">💡 <code>h.lstrip("#")</code>, then <code>int(h[0:2], 16)</code>, etc.; <code>return cls(r, g, b)</code>.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E9 — <code>TextUtils.word_count(s)</code> — a <code>@staticmethod</code></div><div class="hint-box">💡 <code>return len(s.split())</code>; no <code>self</code>/<code>cls</code>.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-hard">Hard</span> E10 — <code>BankAccount</code>: validated <code>balance</code> property + <code>deposit</code>/<code>withdraw</code> + <code>from_dict</code></div><div class="hint-box">💡 Combine a validating setter, guarded methods, and a classmethod constructor.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-hard">Hard</span> E11 — <code>Vector2D</code> with <code>__slots__ = ("x", "y")</code></div><div class="hint-box">💡 Confirm <code>hasattr(v, "__dict__")</code> is False and <code>v.z = 3</code> raises.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-hard">Hard</span> E12 — <code>Temperature</code>: two linked read-write properties (<code>celsius</code> ↔ <code>fahrenheit</code>)</div><div class="hint-box">💡 Store <code>_celsius</code>; the <code>fahrenheit</code> getter converts, and its setter writes back <code>self._celsius = (v-32)*5/9</code>.</div></div>'
+)
+
+# ══════════════════════════ PART 3 ══════════════════════════
+md(
+'<div class="info-box"><strong>Part 3:</strong> ML Real-World → Interview Q&amp;A → Code Challenges → Summary</div>'
+'<div class="ml-header"><h2>7. ML Real-World Connection</h2></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 1</span> Computed model attributes as properties</div>'
+'<div class="body-txt"><code>model.n_params</code>, <code>estimator.is_fitted_</code>, <code>arr.shape</code>/<code>arr.T</code> — read-only <code>@property</code> values derived from internal state, accessed like data.</div></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 2</span> Validated hyperparameters</div>'
+'<div class="body-txt">A setter that rejects <code>learning_rate &lt;= 0</code> or an invalid mode keeps a config valid at every write — the encapsulated version of sklearn\'s parameter validation.</div></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 3</span> <code>@classmethod</code> alternative constructors</div>'
+'<div class="body-txt"><code>Model.from_pretrained(name)</code>, <code>Estimator.from_config(cfg)</code>, <code>DataFrame.from_dict(d)</code> — the factory pattern for building configured objects from external data. Everywhere in ML APIs.</div></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 4</span> <code>__slots__</code> &amp; <code>cached_property</code> for performance</div>'
+'<div class="body-txt"><code>__slots__</code> shrinks memory for millions of small records/nodes; <code>functools.cached_property</code> computes an expensive derived value (dataset stats, a fitted transform) once and reuses it.</div></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 5</span> Encapsulated <code>fit</code>/<code>predict</code> interface</div>'
+'<div class="body-txt">Internal <code>_fitted</code>/<code>_weights</code> stay hidden behind a clean public interface; a property can even raise "call fit() first" if accessed before training. Consumers depend on the interface, not internals.</div></div>'
+)
+
+md(
+'<div class="interview-header"><h2>8. Interview Questions</h2></div>'
+'<div class="sub-header"><h3>8a — Conceptual Q&amp;A</h3></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">1</span> What does <code>@property</code> do, and why over <code>get_x()</code>?</div><div class="qa-a">Makes a method accessible as an attribute (no <code>()</code>). Lets you start with a plain attribute and add computation/validation later without changing any call site.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">2</span> How do you make a property writable, and where does validation go?</div><div class="qa-a">Add <code>@x.setter</code>; validate inside it and store to the backing attribute <code>self._x</code>. It also covers assignments made in <code>__init__</code>.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">3</span> How do you make a read-only attribute?</div><div class="qa-a">Define only the <code>@property</code> getter (no setter). Assigning raises <code>AttributeError</code>.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">4</span> What causes property-setter infinite recursion?</div><div class="qa-a">Assigning to the property itself inside its setter (<code>self.x = v</code>). Fix: store to a differently-named backing attribute (<code>self._x</code>).</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">5</span> <code>@classmethod</code> vs <code>@staticmethod</code>?</div><div class="qa-a"><code>@classmethod</code> receives <code>cls</code> (alt constructors, class state); <code>@staticmethod</code> receives neither — a related utility.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">6</span> Why use <code>cls</code> instead of the class name in a classmethod?</div><div class="qa-a">So the factory returns the correct type for subclasses — <code>cls(...)</code> builds a subclass instance when called on a subclass.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">7</span> What\'s an alternative constructor?</div><div class="qa-a">A classmethod that builds an instance from a different input — <code>from_string</code>, <code>from_dict</code>, <code>from_pretrained</code>.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">8</span> What is name mangling, and is <code>__x</code> private?</div><div class="qa-a"><code>__x</code> is rewritten to <code>_Class__x</code> to avoid subclass clashes — not private; still reachable via the mangled name. <code>_x</code> is convention only.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">9</span> What does <code>__slots__</code> do, and the trade-off?</div><div class="qa-a">Fixes the allowed attributes, drops the per-instance <code>__dict__</code> (saves memory, blocks typos). Trade-off: no dynamic attributes; subclasses need their own <code>__slots__</code>.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">10</span> When would you use <code>functools.cached_property</code>?</div><div class="qa-a">For an expensive derived value computed once and reused — it stores the result in the instance <code>__dict__</code> on first access.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">11</span> Property vs method — how to choose?</div><div class="qa-a">Property for a cheap, noun-like value that reads as data (<code>area</code>, <code>full_name</code>); method for actions (verbs) or expensive work.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">12</span> Does Python have private attributes?</div><div class="qa-a">No enforced privacy — only conventions (<code>_x</code>) and mangling (<code>__x</code>). The interpreter trusts the programmer.</div></div>'
+)
+
+md(
+'<div class="sub-header"><h3>8b — Code Challenges (attempt, then expand the solution)</h3></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-easy">Easy</span> C1 — <code>Employee(monthly)</code>: read-only <code>annual</code> property</div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">class</span> <span class="cm">Employee</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, monthly): self.monthly = monthly<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@property</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">annual</span>(self): <span class="ck">return</span> self.monthly * <span class="cn">12</span></div><div class="qa-a"><code>Employee(1000).annual</code> → 12000. A computed, read-only view of another attribute.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-easy">Easy</span> C2 — <code>Duration.from_minutes(m)</code> classmethod</div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">class</span> <span class="cm">Duration</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, seconds): self.seconds = seconds<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@classmethod</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">from_minutes</span>(cls, m): <span class="ck">return</span> cls(m * <span class="cn">60</span>)</div><div class="qa-a">Alternative constructor: <code>Duration.from_minutes(2).seconds</code> → 120.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-med">Med</span> C3 — <code>Email</code> with a setter validating <code>"@"</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">class</span> <span class="cm">Email</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, addr): self.addr = addr<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@property</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">addr</span>(self): <span class="ck">return</span> self._addr<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@addr.setter</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">addr</span>(self, v):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">if</span> <span class="cs">"@"</span> <span class="ck">not in</span> v: <span class="ck">raise</span> ValueError(<span class="cs">"invalid email"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self._addr = v</div><div class="qa-a">Validation runs at construction and on every later assignment. <code>Email("bad")</code> raises.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-med">Med</span> C4 — <code>Password</code>: a <code>@staticmethod</code> validator used by the setter</div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">class</span> <span class="cm">Password</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, pw): self.pw = pw<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@staticmethod</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">is_strong</span>(pw): <span class="ck">return</span> <span class="cm">len</span>(pw) &gt;= <span class="cn">8</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@property</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">pw</span>(self): <span class="ck">return</span> self._pw<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@pw.setter</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">pw</span>(self, v):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">if</span> <span class="ck">not</span> Password.is_strong(v): <span class="ck">raise</span> ValueError(<span class="cs">"too weak"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self._pw = v</div><div class="qa-a">A stateless validator (static) reused by the setter — clean separation of the rule from the storage.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-med">Med</span> C5 — <code>Widget</code> instance counter (class attr + classmethod)</div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">class</span> <span class="cm">Widget</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;count = <span class="cn">0</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self): Widget.count += <span class="cn">1</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@classmethod</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">total</span>(cls): <span class="ck">return</span> cls.count</div><div class="qa-a">Class-level state (<code>count</code>) read via a classmethod. Two <code>Widget()</code>s → <code>Widget.total()</code> is 2.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-med">Med</span> C6 — <code>Angle</code>: two linked read-write properties (<code>degrees</code> ↔ <code>radians</code>)</div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">import</span> math<br><span class="ck">class</span> <span class="cm">Angle</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, degrees=<span class="cn">0</span>): self._degrees = degrees<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@property</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">degrees</span>(self): <span class="ck">return</span> self._degrees<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@degrees.setter</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">degrees</span>(self, v): self._degrees = v<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@property</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">radians</span>(self): <span class="ck">return</span> math.radians(self._degrees)<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@radians.setter</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">radians</span>(self, v): self._degrees = math.degrees(v)</div><div class="qa-a">One source of truth (<code>_degrees</code>); <code>radians</code> is a computed view that also writes back. Set one, read the other consistently.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-hard">Hard</span> C7 — <code>Vec</code>: <code>__slots__</code> + read-only <code>magnitude</code> + <code>from_tuple</code> + <code>__repr__</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">class</span> <span class="cm">Vec</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;__slots__ = (<span class="cs">"x"</span>, <span class="cs">"y"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, x, y): self.x = x; self.y = y<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@property</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">magnitude</span>(self): <span class="ck">return</span> (self.x**<span class="cn">2</span> + self.y**<span class="cn">2</span>) ** <span class="cn">0.5</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@classmethod</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">from_tuple</span>(cls, t): <span class="ck">return</span> cls(*t)<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__repr__</span>(self): <span class="ck">return</span> <span class="cs">f"Vec({self.x}, {self.y})"</span></div><div class="qa-a">A property coexists with <code>__slots__</code> (properties live on the class). <code>Vec(3,4).magnitude</code> → 5.0; combines slots + property + classmethod + repr.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-hard">Hard</span> C8 — <code>functools.cached_property</code>: compute an expensive value once</div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">from</span> functools <span class="ck">import</span> cached_property<br><span class="ck">class</span> <span class="cm">Dataset</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, data): self.data = data; self.compute_calls = <span class="cn">0</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@cached_property</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">stats</span>(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.compute_calls += <span class="cn">1</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> {<span class="cs">"count"</span>: <span class="cm">len</span>(self.data), <span class="cs">"sum"</span>: <span class="cm">sum</span>(self.data)}</div><div class="qa-a">Accessing <code>ds.stats</code> repeatedly computes only <strong>once</strong> (<code>compute_calls == 1</code>) — the result is cached in the instance dict. Ideal for expensive derived stats.</div></details></div>'
+)
+
+md(
+'<div class="summary-header"><h2>9. Summary Table — Session 7D</h2></div>'
+'<table class="summary">'
+'<tr><th>Concept</th><th>Why it matters in ML</th><th>Interview frequency</th></tr>'
+'<tr><td><code>@property</code> (getter)</td><td>Computed model attrs (<code>shape</code>, <code>n_params</code>)</td><td><span class="freq-vh">Very High</span></td></tr>'
+'<tr><td>Setters &amp; validation</td><td>Guarding hyperparameters / invariants</td><td><span class="freq-vh">Very High</span></td></tr>'
+'<tr><td>Setter recursion trap</td><td>The #1 property bug</td><td><span class="freq-h">High</span></td></tr>'
+'<tr><td><code>@classmethod</code> constructors</td><td><code>from_pretrained</code>/<code>from_dict</code></td><td><span class="freq-vh">Very High</span></td></tr>'
+'<tr><td><code>@staticmethod</code></td><td>Class-related utilities</td><td><span class="freq-m">Medium</span></td></tr>'
+'<tr><td>Name mangling / <code>_x</code> vs <code>__x</code></td><td>Signaling internals; no true privacy</td><td><span class="freq-m">Medium</span></td></tr>'
+'<tr><td><code>__slots__</code></td><td>Memory for millions of small objects</td><td><span class="freq-m">Medium</span></td></tr>'
+'<tr><td><code>cached_property</code></td><td>Expensive derived values computed once</td><td><span class="freq-h">High</span></td></tr>'
+'</table>'
+'<hr class="divider">'
+'<div style="background:#1e1e2e; border-left:4px solid #a6e3a1; padding:14px 18px; border-radius:8px; font-family:monospace; color:#cdd6f4;">'
+'<strong style="color:#a6e3a1">✅ 7D complete.</strong> Properties &amp; methods end to end: encapsulation, '
+'<code>@property</code> getters/setters/deleters, <code>@classmethod</code>/<code>@staticmethod</code>, name '
+'mangling, <code>__slots__</code>, 4 examples, 5 edge cases, 7 golden rules, 6 traps, 12 exercises, ML '
+'connections, 12 conceptual Q&amp;A, 8 code challenges, summary table.<br>'
+'<span style="color:#6c7086">Next — 7E: GIL &amp; Concurrency (the final OOP sub-session) — what the GIL is, '
+'why CPU-bound threading doesn\'t parallelize, threads vs processes vs async, when threading helps.</span></div>'
+)
+
+nb = new_notebook(cells=cells)
+nb.metadata["kernelspec"] = {"display_name": "Python 3", "language": "python", "name": "python3"}
+nb.metadata["language_info"] = {"name": "python"}
+nbf.write(nb, "theory.ipynb")
+print("wrote theory.ipynb with", len(cells), "cells")

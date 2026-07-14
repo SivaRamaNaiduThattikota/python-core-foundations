@@ -1,0 +1,644 @@
+# Builder for Session 7C - Inheritance & MRO, theory.ipynb.
+# OOP sub-session 7C of 5. Deep 4-chunk. Chunk A = four pillars framing + inheritance basics.
+import nbformat as nbf
+from nbformat.v4 import new_notebook, new_markdown_cell
+
+cells = []
+
+STYLE = """<style>
+  * { box-sizing:border-box; word-wrap:break-word; overflow-wrap:break-word; }
+  body, .jp-RenderedHTMLCommon { padding:0 !important; margin:0 !important; overflow-x:hidden !important; }
+  h1.main-title { color:#cba6f7; font-family:'Segoe UI',sans-serif; font-size:2em; border-bottom:2px solid #45475a; padding-bottom:10px; margin-bottom:16px; }
+  .part-header { background:linear-gradient(90deg,#313244,#1e1e2e); border-left:5px solid #cba6f7; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .part-header h2 { color:#cba6f7; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .chunk-badge { display:inline-block; background:#2a1e2e; border:1px solid #cba6f7; color:#cba6f7; border-radius:20px; padding:2px 12px; font-size:0.82em; font-family:'Courier New',monospace; margin:6px 0; }
+  h3.sub { color:#89dceb; font-family:'Segoe UI',sans-serif; margin:20px 0 8px; font-size:1.02em; }
+  .theory-box { background:#2a2a3d; border-left:5px solid #89b4fa; border-radius:10px; padding:16px 22px; margin:14px 0; color:#cdd6f4; font-family:'Segoe UI',sans-serif; line-height:1.8; max-width:100%; }
+  .code-block { background:#181825; border:1px solid #313244; border-radius:8px; padding:14px 20px; font-family:'Courier New',monospace; font-size:0.9em; color:#a6e3a1; margin:10px 0; line-height:2; overflow-x:auto; max-width:100%; }
+  .output-block { background:#11111b; border:1px solid #313244; border-radius:8px; padding:12px 18px; font-family:'Courier New',monospace; font-size:0.87em; color:#cdd6f4; margin:4px 0 10px; line-height:1.9; overflow-x:auto; max-width:100%; }
+  .info-box { background:#1e2030; border-left:4px solid #89b4fa; border-radius:8px; padding:11px 16px; margin:10px 0; color:#89b4fa; font-family:'Segoe UI',sans-serif; font-size:0.92em; line-height:1.7; }
+  .note-box { background:#1c1c2e; border-left:4px solid #a6e3a1; border-radius:8px; padding:11px 16px; margin:10px 0; color:#a6e3a1; font-family:'Segoe UI',sans-serif; font-size:0.92em; line-height:1.7; }
+  .why-box { background:#2a1e2e; border-left:4px solid #cba6f7; border-radius:0 8px 8px 0; padding:10px 14px; margin:8px 0; color:#cba6f7; font-family:'Segoe UI',sans-serif; font-size:0.9em; line-height:1.7; }
+  .warn-box { background:#2a1f00; border-left:4px solid #f9e2af; border-radius:8px; padding:11px 16px; margin:10px 0; color:#f9e2af; font-family:'Segoe UI',sans-serif; font-size:0.92em; line-height:1.7; }
+  .theory-box code, .info-box code, .note-box code, .why-box code, .warn-box code { background:#313244; padding:1px 6px; border-radius:4px; color:#a6e3a1; font-family:'Courier New',monospace; font-size:0.88em; }
+  .mut-grid { display:block; margin:12px 0; }
+  .mut-card { display:inline-block; width:48%; min-width:200px; vertical-align:top; border-radius:10px; padding:14px 16px; margin-right:2%; margin-bottom:10px; font-family:'Segoe UI',sans-serif; font-size:0.88em; line-height:1.85; }
+  .mut-card:last-child { margin-right:0; }
+  .mc-imm { background:#1e2030; border:1px solid #89b4fa; border-top:3px solid #89b4fa; }
+  .mc-mut { background:#1a2e1a; border:1px solid #a6e3a1; border-top:3px solid #a6e3a1; }
+  .mc-imm .mc-title { color:#89b4fa; font-weight:bold; margin-bottom:8px; }
+  .mc-mut .mc-title { color:#a6e3a1; font-weight:bold; margin-bottom:8px; }
+  .mc-body { color:#cdd6f4; font-family:'Courier New',monospace; font-size:0.86em; }
+  .ex-header { background:linear-gradient(90deg,#1a2e1a,#1e1e2e); border-left:5px solid #a6e3a1; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .ex-header h2 { color:#a6e3a1; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .warn-header { background:linear-gradient(90deg,#2a1f00,#1e1e2e); border-left:5px solid #f9e2af; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .warn-header h2 { color:#f9e2af; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .ex-block, .edge-block { background:#1e1e2e; border:1px solid #313244; border-radius:10px; padding:16px 20px; margin:12px 0; }
+  .ex-title { color:#a6e3a1; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.95em; margin-bottom:10px; }
+  .ex-badge { display:inline-block; background:#1a2e1a; border:1px solid #a6e3a1; color:#a6e3a1; border-radius:20px; padding:2px 10px; font-size:0.8em; font-family:'Courier New',monospace; margin-right:8px; }
+  .edge-title { color:#f9e2af; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.95em; margin-bottom:10px; }
+  .edge-badge { display:inline-block; background:#2a1f00; border:1px solid #f9e2af; color:#f9e2af; border-radius:20px; padding:2px 10px; font-size:0.8em; font-family:'Courier New',monospace; margin-right:8px; }
+  .rule-block, .trap-block, .ml-block, .exr-block, .cc-block { background:#1e1e2e; border:1px solid #313244; border-radius:10px; padding:14px 18px; margin:10px 0; }
+  .rule-title { color:#cba6f7; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.92em; margin-bottom:6px; }
+  .rule-badge { display:inline-block; background:#2a1e2e; border:1px solid #cba6f7; color:#cba6f7; border-radius:20px; padding:2px 10px; font-size:0.76em; font-family:'Courier New',monospace; margin-right:8px; }
+  .trap-header { background:linear-gradient(90deg,#2e1e1e,#1e1e2e); border-left:5px solid #f38ba8; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .trap-header h2 { color:#f38ba8; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .trap-title { color:#f38ba8; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.92em; margin-bottom:6px; }
+  .trap-badge { display:inline-block; background:#2e1e1e; border:1px solid #f38ba8; color:#f38ba8; border-radius:20px; padding:2px 10px; font-size:0.76em; font-family:'Courier New',monospace; margin-right:8px; }
+  .ml-header { background:linear-gradient(90deg,#1a2e1a,#1e1e2e); border-left:5px solid #a6e3a1; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .ml-header h2 { color:#a6e3a1; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .ml-title { color:#a6e3a1; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.92em; margin-bottom:6px; }
+  .ml-badge { display:inline-block; background:#1a2e1a; border:1px solid #a6e3a1; color:#a6e3a1; border-radius:20px; padding:2px 10px; font-size:0.76em; font-family:'Courier New',monospace; margin-right:8px; }
+  .body-txt { color:#cdd6f4; font-family:'Segoe UI',sans-serif; font-size:0.9em; line-height:1.7; }
+  .body-txt code { background:#313244; padding:1px 5px; border-radius:4px; color:#a6e3a1; font-family:'Courier New',monospace; font-size:0.86em; }
+  .interview-header { background:linear-gradient(90deg,#2a1e2e,#1e1e2e); border-left:5px solid #cba6f7; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .interview-header h2 { color:#cba6f7; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .sub-header { background:linear-gradient(90deg,#1e2030,#1e1e2e); border-left:4px solid #89b4fa; border-radius:8px; padding:8px 16px; margin:16px 0 8px; }
+  .sub-header h3 { color:#89b4fa; margin:0; font-size:0.95em; font-family:'Segoe UI',sans-serif; }
+  .qa-block { background:#1e1e2e; border:1px solid #313244; border-radius:10px; padding:11px 16px; margin:8px 0; }
+  .qa-q { color:#f9e2af; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.89em; margin-bottom:5px; line-height:1.5; }
+  .qa-a { color:#cdd6f4; font-family:'Segoe UI',sans-serif; font-size:0.87em; line-height:1.7; }
+  .qa-a code, .qa-q code { background:#313244; padding:1px 5px; border-radius:4px; color:#a6e3a1; font-family:'Courier New',monospace; font-size:0.85em; }
+  .q-num { display:inline-block; min-width:22px; height:22px; border-radius:50%; background:#2a1e2e; border:2px solid #cba6f7; color:#cba6f7; font-weight:bold; font-size:0.75em; text-align:center; line-height:19px; font-family:'Courier New',monospace; margin-right:8px; }
+  .cc-title { color:#89b4fa; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.91em; margin-bottom:8px; }
+  .cc-badge { display:inline-block; border-radius:20px; padding:2px 10px; font-size:0.74em; font-family:'Courier New',monospace; margin-right:8px; }
+  .badge-easy { background:#1a2e1a; border:1px solid #a6e3a1; color:#a6e3a1; }
+  .badge-med { background:#1e2030; border:1px solid #89b4fa; color:#89b4fa; }
+  .badge-hard { background:#2e1e1e; border:1px solid #f38ba8; color:#f38ba8; }
+  details.sol { background:#181825; border:1px solid #313244; border-radius:8px; padding:8px 14px; margin:8px 0; }
+  details.sol summary { color:#a6e3a1; font-family:'Segoe UI',sans-serif; font-size:0.85em; cursor:pointer; font-weight:bold; }
+  .hint-box { background:#1c1c2e; border-left:4px solid #89dceb; border-radius:0 8px 8px 0; padding:8px 12px; margin:6px 0; color:#89dceb; font-family:'Segoe UI',sans-serif; font-size:0.85em; line-height:1.6; }
+  .hint-box code { background:#313244; padding:1px 5px; border-radius:4px; color:#a6e3a1; font-family:'Courier New',monospace; font-size:0.82em; }
+  .exr-title { color:#cdd6f4; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.9em; margin-bottom:6px; }
+  .summary-header { background:linear-gradient(90deg,#1e2030,#1e1e2e); border-left:5px solid #89b4fa; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .summary-header h2 { color:#89b4fa; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  table.summary { width:100%; border-collapse:collapse; font-family:'Segoe UI',sans-serif; font-size:0.86em; margin:12px 0; }
+  table.summary th { background:#313244; color:#cba6f7; padding:9px 14px; text-align:left; border:1px solid #45475a; }
+  table.summary td { background:#1e1e2e; color:#cdd6f4; padding:8px 14px; border:1px solid #313244; vertical-align:top; line-height:1.6; }
+  table.summary td:first-child { color:#89dceb; }
+  table.summary td:last-child { text-align:center; font-weight:bold; }
+  .freq-vh { color:#f38ba8; } .freq-h { color:#f9e2af; } .freq-m { color:#89b4fa; }
+  .divider { border:none; border-top:1px solid #313244; margin:22px 0; }
+  .cc { color:#6c7086; } .cs { color:#f9e2af; } .ck { color:#cba6f7; } .cm { color:#f38ba8; } .cn { color:#fab387; }
+</style>
+"""
+
+def md(body):
+    cells.append(new_markdown_cell(STYLE + body))
+
+# ── Title ──────────────────────────────────────────────────────────────
+md(
+'<h1 class="main-title">🐍 Session 7C — Inheritance &amp; MRO</h1>'
+'<div class="info-box"><strong>OOP sub-session 7C of 5.</strong> &nbsp;<strong>Part 1:</strong> '
+'Theory → Example → Edge Cases · deep 4-chunk.</div>'
+'<div class="chunk-badge">Part 1 · Chunk A — The Four Pillars &amp; Inheritance Basics</div>'
+'<div class="theory-box" style="border-left-color:#cba6f7;">'
+'This is the reuse-and-polymorphism sub-session, and where the <strong style="color:#89b4fa">four pillars of '
+'OOP</strong> come together by name. Chunk A frames the pillars and covers basic inheritance + overriding; B '
+'is <code>super()</code>; C is multiple inheritance &amp; the MRO; D is polymorphism &amp; abstraction — duck '
+'typing, <code>typing.Protocol</code>, and abstract base classes.</div>'
+)
+
+# ── 1.1 four pillars ───────────────────────────────────────────────────
+md(
+'<div class="part-header"><h2>1. Theory</h2></div>'
+'<h3 class="sub">🔹 1.1 &nbsp;The four pillars of OOP — and where they live in this track</h3>'
+'<div class="theory-box">OOP is usually summarized as four ideas. You\'ve already used three; 7C adds the '
+'last two properly.</div>'
+'<table class="summary">'
+'<tr><th>Pillar</th><th>What it means</th><th>Where in this track</th></tr>'
+'<tr><td>Encapsulation</td><td>Bundle state + behavior; hide internals behind an interface</td><td>7A (classes) · 7D (<code>@property</code>, name mangling)</td></tr>'
+'<tr><td>Inheritance</td><td>A subclass reuses &amp; specializes a base class (is-a)</td><td><strong>7C</strong> (this session)</td></tr>'
+'<tr><td>Polymorphism</td><td>One interface, many types — same call, different behavior</td><td><strong>7C</strong> (overriding, duck typing) · 7B (operators)</td></tr>'
+'<tr><td>Abstraction</td><td>Program to an interface, not an implementation</td><td><strong>7C</strong> (<code>abc</code>, <code>Protocol</code>)</td></tr>'
+'</table>'
+'<div class="info-box">💡 <strong>ML anchor:</strong> a PyTorch layer subclasses <code>nn.Module</code> '
+'(inheritance); every sklearn estimator exposes <code>fit</code>/<code>predict</code> (polymorphism via a '
+'shared interface); <code>Dataset</code> is an abstraction you implement. The pillars are the shape of every '
+'ML framework.</div>'
+)
+
+# ── 1.2 inheritance basics ─────────────────────────────────────────────
+md(
+'<h3 class="sub">🔹 1.2 &nbsp;Inheritance basics — a subclass reuses its base</h3>'
+'<div class="theory-box"><code>class Child(Parent)</code> makes <code>Child</code> inherit the parent\'s '
+'attributes and methods. An instance of the child <em>is-a</em> parent too. Attribute lookup (7A) walks '
+'instance → class → <strong>base classes</strong> — so inherited methods just work.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Animal</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, name): self.name = name<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">speak</span>(self): <span class="ck">return</span> <span class="cs">"..."</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">describe</span>(self): <span class="ck">return</span> <span class="cs">f"{self.name} says {self.speak()}"</span><br>'
+'<br>'
+'<span class="ck">class</span> <span class="cm">Dog</span>(Animal):   <span class="cc"># Dog is-a Animal</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">pass</span>            <span class="cc"># inherits everything</span><br>'
+'<br>'
+'d = <span class="cm">Dog</span>(<span class="cs">"Rex"</span>)   <span class="cc"># inherited __init__</span><br>'
+'d.name, d.describe()   <span class="cc"># (\'Rex\', \'Rex says ...\')</span></div>'
+'<div class="output-block">Rex | Rex says ...</div>'
+'<div class="info-box">💡 <strong>SQL / Power BI anchor:</strong> inheritance is like building a specialized '
+'view on top of a base view — the derived one has everything the base has, plus its own additions/overrides.</div>'
+)
+
+# ── 1.3 overriding + polymorphism ──────────────────────────────────────
+md(
+'<h3 class="sub">🔹 1.3 &nbsp;Overriding &amp; polymorphism — same call, different behavior</h3>'
+'<div class="theory-box">A subclass <strong>overrides</strong> a method by redefining it; lookup finds the '
+'child\'s version first. The magic: an inherited method that calls <code>self.speak()</code> automatically '
+'uses the <em>overridden</em> version — this is <strong>polymorphism</strong> (one <code>describe</code>, '
+'many behaviors).</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Dog</span>(Animal):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">speak</span>(self): <span class="ck">return</span> <span class="cs">"Woof"</span>   <span class="cc"># override</span><br>'
+'<span class="ck">class</span> <span class="cm">Cat</span>(Animal):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">speak</span>(self): <span class="ck">return</span> <span class="cs">"Meow"</span><br>'
+'<br>'
+'<span class="cm">Dog</span>(<span class="cs">"Rex"</span>).describe()   <span class="cc"># \'Rex says Woof\'  - inherited describe uses Dog.speak</span><br>'
+'[a.describe() <span class="ck">for</span> a <span class="ck">in</span> [<span class="cm">Dog</span>(<span class="cs">"Rex"</span>), <span class="cm">Cat</span>(<span class="cs">"Tom"</span>)]]<br>'
+'<span class="cc"># [\'Rex says Woof\', \'Tom says Meow\']  - same loop, different behavior</span></div>'
+'<div class="output-block">Rex says Woof<br>[\'Rex says Woof\', \'Tom says Meow\']</div>'
+'<div class="why-box"><strong>Why it matters:</strong> <code>describe</code> is written once in the base and '
+'works for every subclass, calling whichever <code>speak</code> the actual object has. This "template method" '
+'shape is how a base <code>Estimator</code> can define a generic workflow that calls the subclass\'s specific '
+'steps — the heart of framework design.</div>'
+)
+
+# ── 1.4 isinstance/issubclass + 1.5 extending ──────────────────────────
+md(
+'<h3 class="sub">🔹 1.4 &nbsp;<code>isinstance</code> / <code>issubclass</code> — checking the hierarchy</h3>'
+'<div class="theory-box"><code>isinstance(obj, Cls)</code> is <code>True</code> if <code>obj</code> is that '
+'class <em>or any subclass</em> (the is-a relationship). <code>issubclass(A, B)</code> checks the class '
+'hierarchy directly. Both respect the full inheritance chain.</div>'
+'<div class="code-block">'
+'d = <span class="cm">Dog</span>(<span class="cs">"Rex"</span>)<br>'
+'<span class="cm">isinstance</span>(d, Dog)      <span class="cc"># True</span><br>'
+'<span class="cm">isinstance</span>(d, Animal)   <span class="cc"># True  - a Dog IS-A Animal</span><br>'
+'<span class="cm">isinstance</span>(d, Cat)      <span class="cc"># False</span><br>'
+'<span class="cm">issubclass</span>(Dog, Animal)  <span class="cc"># True</span><br>'
+'<span class="cm">issubclass</span>(Animal, Dog)  <span class="cc"># False - not the other way</span></div>'
+'<div class="output-block">True True False<br>True False</div>'
+'<h3 class="sub">🔹 1.5 &nbsp;Extending — subclasses add new behavior</h3>'
+'<div class="theory-box">A subclass isn\'t limited to overriding — it can add entirely new methods and '
+'attributes while keeping everything inherited.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Puppy</span>(Dog):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">play</span>(self): <span class="ck">return</span> <span class="cs">f"{self.name} plays"</span>   <span class="cc"># new method</span><br>'
+'<br>'
+'p = <span class="cm">Puppy</span>(<span class="cs">"Fido"</span>)<br>'
+'p.speak(), p.play()   <span class="cc"># (\'Woof\' [from Dog], \'Fido plays\' [new])</span><br>'
+'<span class="cm">isinstance</span>(p, Animal)   <span class="cc"># True - inheritance is transitive</span></div>'
+'<div class="output-block">Woof | Fido plays<br>isinstance(p, Animal): True</div>'
+'<div class="warn-box">⚠ <strong>Prefer shallow hierarchies.</strong> Deep inheritance chains get hard to '
+'follow. Often <strong>composition</strong> (an object <em>has-a</em> other object) beats inheritance — '
+'covered in Chunk D.</div>'
+'<hr class="divider">'
+'<div style="background:#1e1e2e; border-left:4px solid #cba6f7; padding:16px 20px; border-radius:8px; font-family:monospace; color:#cdd6f4;">'
+'<h4 style="color:#cba6f7; margin:0 0 12px 0;">🔑 Chunk A — Key Takeaways</h4>'
+'<ul style="margin:0; padding-left:20px; line-height:2.1">'
+'<li>Four pillars: encapsulation (7A/7D), inheritance + polymorphism + abstraction (7C)</li>'
+'<li><code>class Child(Parent)</code> inherits attributes &amp; methods; the child <em>is-a</em> parent</li>'
+'<li>Overriding + an inherited method calling <code>self.method()</code> = polymorphism (one interface, many behaviors)</li>'
+'<li><code>isinstance</code>/<code>issubclass</code> respect the whole chain; subclasses can also add new behavior</li>'
+'</ul></div>'
+)
+
+# ══════════════════════════ CHUNK B ══════════════════════════
+md(
+'<div class="chunk-badge">Part 1 · Chunk B — <code>super()</code></div>'
+'<h3 class="sub">🔹 1.6 &nbsp;<code>super()</code> — call the parent\'s version from an override</h3>'
+'<div class="theory-box">When you override a method but still want the parent\'s behavior, call it via '
+'<code>super()</code>. The most common use is <code>__init__</code>: the child runs '
+'<code>super().__init__(...)</code> to let the parent set up its state, then adds its own. This is '
+'<strong>extending</strong> (build on the parent) vs <strong>replacing</strong> (ignore it entirely).</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Animal</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, name): self.name = name<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">describe</span>(self): <span class="ck">return</span> <span class="cs">f"Animal named {self.name}"</span><br>'
+'<br>'
+'<span class="ck">class</span> <span class="cm">Dog</span>(Animal):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, name, breed):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">super</span>().<span class="cm">__init__</span>(name)   <span class="cc"># run parent setup (sets self.name)</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.breed = breed        <span class="cc"># then add own state</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">describe</span>(self):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> <span class="cm">super</span>().<span class="cm">describe</span>() + <span class="cs">f", a {self.breed}"</span>   <span class="cc"># EXTEND</span><br>'
+'<br>'
+'d = <span class="cm">Dog</span>(<span class="cs">"Rex"</span>, <span class="cs">"Lab"</span>)<br>'
+'d.name, d.breed        <span class="cc"># (\'Rex\', \'Lab\')</span><br>'
+'d.describe()           <span class="cc"># \'Animal named Rex, a Lab\'</span></div>'
+'<div class="output-block">Rex Lab<br>Animal named Rex, a Lab</div>'
+'<div class="why-box"><strong>Why it matters:</strong> <code>super().__init__()</code> is how a subclass '
+'gets the parent\'s initialization for free and layers its own on top. This is exactly the shape of every '
+'<code>class MyModel(nn.Module): def __init__(self): super().__init__(); ...</code> — the parent '
+'(<code>nn.Module</code>) must run its setup or the object is broken.</div>'
+)
+
+md(
+'<h3 class="sub">🔹 1.7 &nbsp;Forget <code>super().__init__()</code> and the parent never initializes</h3>'
+'<div class="theory-box">If a child defines <code>__init__</code> but doesn\'t call <code>super().__init__()</code>, '
+'the parent\'s setup <strong>never runs</strong> — its attributes are missing. A very common bug when '
+'subclassing framework base classes.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Bad</span>(Animal):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, breed):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.breed = breed   <span class="cc"># forgot super().__init__(name)!</span><br>'
+'<br>'
+'<span class="cm">Bad</span>(<span class="cs">"Lab"</span>).name   <span class="cc"># AttributeError: \'Bad\' object has no attribute \'name\'</span></div>'
+'<div class="output-block">AttributeError: \'Bad\' object has no attribute \'name\'</div>'
+'<div class="note-box">💡 If the child needs no extra setup, don\'t define <code>__init__</code> at all — it '
+'inherits the parent\'s. Only override <code>__init__</code> when you\'re adding state, and then almost always '
+'call <code>super().__init__()</code>.</div>'
+'<h3 class="sub">🔹 1.8 &nbsp;<code>super()</code> works in any method, across the whole chain</h3>'
+'<div class="theory-box"><code>super()</code> isn\'t special to <code>__init__</code> — use it in any overridden '
+'method. And it means "the <strong>next class in the method resolution order</strong>," not literally "my '
+'parent" — which is what makes it work cleanly through multiple levels (and multiple inheritance, Chunk C).</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Loud</span>(Dog):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">describe</span>(self): <span class="ck">return</span> <span class="cm">super</span>().<span class="cm">describe</span>().<span class="cm">upper</span>()   <span class="cc"># extend Dog.describe</span><br>'
+'<br>'
+'<span class="cm">Loud</span>(<span class="cs">"Max"</span>, <span class="cs">"Pug"</span>).describe()   <span class="cc"># \'ANIMAL NAMED MAX, A PUG\'</span><br>'
+'Loud.__mro__   <span class="cc"># (Loud, Dog, Animal, object) - the chain super() walks</span></div>'
+'<div class="output-block">ANIMAL NAMED MAX, A PUG<br>(Loud, Dog, Animal, object)</div>'
+'<div class="why-box"><strong>Why it matters:</strong> <code>Loud.describe</code> → <code>super()</code> → '
+'<code>Dog.describe</code> → <code>super()</code> → <code>Animal.describe</code>. Each level extends the next '
+'without hard-coding a class name, so the chain composes. That\'s the "next in MRO" behavior — the subject '
+'of Chunk C.</div>'
+'<hr class="divider">'
+'<div style="background:#1e1e2e; border-left:4px solid #cba6f7; padding:14px 18px; border-radius:8px; font-family:monospace; color:#cdd6f4;">'
+'<h4 style="color:#cba6f7; margin:0 0 10px 0;">🔑 Chunk B — Key Takeaways</h4>'
+'<ul style="margin:0; padding-left:20px; line-height:2.0">'
+'<li><code>super().method()</code> calls the parent\'s version — the basis of <em>extending</em> vs replacing</li>'
+'<li><code>super().__init__(...)</code> runs the parent\'s setup; forgetting it leaves parent attributes missing</li>'
+'<li>Only override <code>__init__</code> when adding state (else inherit it); then call <code>super()</code></li>'
+'<li><code>super()</code> works in any method and means "next in the MRO," not literally "parent"</li>'
+'</ul></div>'
+)
+
+# ══════════════════════════ CHUNK C ══════════════════════════
+md(
+'<div class="chunk-badge">Part 1 · Chunk C — Multiple Inheritance &amp; the MRO</div>'
+'<h3 class="sub">🔹 1.9 &nbsp;Multiple inheritance &amp; the diamond problem</h3>'
+'<div class="theory-box">A class can inherit from several bases: <code>class D(B, C)</code>. When two bases '
+'share a common ancestor (a <strong>diamond</strong>), which version of a method wins? Python answers with '
+'the <strong>MRO</strong> (method resolution order) — a single, deterministic ordering of all ancestors, '
+'computed by the <strong>C3 linearization</strong> algorithm. <code>Cls.__mro__</code> shows it.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">A</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">greet</span>(self): <span class="ck">return</span> <span class="cs">"A"</span><br>'
+'<span class="ck">class</span> <span class="cm">B</span>(A):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">greet</span>(self): <span class="ck">return</span> <span class="cs">"B-&gt;"</span> + <span class="cm">super</span>().greet()<br>'
+'<span class="ck">class</span> <span class="cm">C</span>(A):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">greet</span>(self): <span class="ck">return</span> <span class="cs">"C-&gt;"</span> + <span class="cm">super</span>().greet()<br>'
+'<span class="ck">class</span> <span class="cm">D</span>(B, C):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">greet</span>(self): <span class="ck">return</span> <span class="cs">"D-&gt;"</span> + <span class="cm">super</span>().greet()<br>'
+'<br>'
+'<span class="cm">D</span>().greet()   <span class="cc"># \'D-&gt;B-&gt;C-&gt;A\'  - A runs ONCE, not twice</span><br>'
+'[c.__name__ <span class="ck">for</span> c <span class="ck">in</span> D.__mro__]   <span class="cc"># [\'D\', \'B\', \'C\', \'A\', \'object\']</span></div>'
+'<div class="output-block">D-&gt;B-&gt;C-&gt;A<br>[\'D\', \'B\', \'C\', \'A\', \'object\']</div>'
+'<div class="why-box"><strong>Why it matters:</strong> naive inheritance would call <code>A.greet</code> '
+'twice (through B and through C). The MRO linearizes the diamond into a straight line '
+'<code>D → B → C → A → object</code>, and <code>super()</code> walks it — so each ancestor runs '
+'<strong>exactly once</strong>. That\'s the whole point of the MRO.</div>'
+)
+
+md(
+'<h3 class="sub">🔹 1.10 &nbsp;Cooperative <code>super()</code> — everyone gets called once, in MRO order</h3>'
+'<div class="theory-box">If <em>every</em> class in a diamond calls <code>super().__init__()</code>, the MRO '
+'guarantees each initializer runs exactly once. This is why <code>super()</code> means "next in the MRO," '
+'not "my parent" (Chunk B) — it\'s what threads the chain through siblings correctly.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Base</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self): self.log = [<span class="cs">"Base"</span>]<br>'
+'<span class="ck">class</span> <span class="cm">M1</span>(Base):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self): <span class="cm">super</span>().<span class="cm">__init__</span>(); self.log.<span class="cm">append</span>(<span class="cs">"M1"</span>)<br>'
+'<span class="ck">class</span> <span class="cm">M2</span>(Base):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self): <span class="cm">super</span>().<span class="cm">__init__</span>(); self.log.<span class="cm">append</span>(<span class="cs">"M2"</span>)<br>'
+'<span class="ck">class</span> <span class="cm">Combined</span>(M1, M2):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self): <span class="cm">super</span>().<span class="cm">__init__</span>(); self.log.<span class="cm">append</span>(<span class="cs">"Combined"</span>)<br>'
+'<br>'
+'<span class="cm">Combined</span>().log   <span class="cc"># [\'Base\', \'M2\', \'M1\', \'Combined\']</span><br>'
+'<span class="cc"># MRO: Combined -> M1 -> M2 -> Base; super() chains down, then each appends on the way back up</span></div>'
+'<div class="output-block">[\'Base\', \'M2\', \'M1\', \'Combined\']</div>'
+'<div class="note-box">💡 The order looks "backwards" because each <code>__init__</code> calls '
+'<code>super()</code> <em>first</em>, so <code>Base</code> runs before the appends unwind: '
+'Base → M2 → M1 → Combined. Break the chain (one class forgets <code>super()</code>) and some initializers '
+'silently never run.</div>'
+)
+
+md(
+'<h3 class="sub">🔹 1.11 &nbsp;Mixins — small classes that add one capability</h3>'
+'<div class="theory-box">A <strong>mixin</strong> is a small class not meant to stand alone — it adds a single '
+'reusable behavior to whatever it\'s mixed into via multiple inheritance. It relies on attributes/methods the '
+'host class provides (here, <code>self.__dict__</code>).</div>'
+'<div class="code-block">'
+'<span class="ck">import</span> json<br>'
+'<span class="ck">class</span> <span class="cm">JsonMixin</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">to_json</span>(self): <span class="ck">return</span> json.<span class="cm">dumps</span>(self.__dict__)<br>'
+'<br>'
+'<span class="ck">class</span> <span class="cm">User</span>(JsonMixin):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, name): self.name = name<br>'
+'<br>'
+'<span class="cm">User</span>(<span class="cs">"Siva"</span>).to_json()   <span class="cc"># \'{"name": "Siva"}\'</span></div>'
+'<div class="output-block">{"name": "Siva"}</div>'
+'<div class="info-box">💡 <strong>ML anchor:</strong> mixins are everywhere in frameworks — Django\'s '
+'view mixins, DRF serializers, and sklearn\'s <code>TransformerMixin</code>/<code>ClassifierMixin</code> '
+'(which add <code>fit_transform</code>/<code>score</code> to an estimator). You mix in a capability rather '
+'than inherit a deep chain.</div>'
+'<h3 class="sub">🔹 1.12 &nbsp;When the MRO can\'t be built — <code>TypeError</code></h3>'
+'<div class="theory-box">If your base ordering is inconsistent (e.g. a base listed <em>before</em> its own '
+'subclass), C3 can\'t produce a valid linearization and the class fails to even be created.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">P</span>: <span class="ck">pass</span><br>'
+'<span class="ck">class</span> <span class="cm">Q</span>(P): <span class="ck">pass</span><br>'
+'<span class="ck">class</span> <span class="cm">Bad</span>(P, Q): <span class="ck">pass</span>   <span class="cc"># TypeError: Cannot create a consistent MRO</span></div>'
+'<div class="output-block">TypeError: Cannot create a consistent method resolution order (MRO) for bases P, Q</div>'
+'<div class="note-box">💡 Fix: list the more-derived class first (<code>class Ok(Q, P)</code>) — or, better, '
+'avoid tangled multiple inheritance. Most designs are cleaner with a single base + mixins or with '
+'composition (Chunk D).</div>'
+'<hr class="divider">'
+'<div style="background:#1e1e2e; border-left:4px solid #cba6f7; padding:14px 18px; border-radius:8px; font-family:monospace; color:#cdd6f4;">'
+'<h4 style="color:#cba6f7; margin:0 0 10px 0;">🔑 Chunk C — Key Takeaways</h4>'
+'<ul style="margin:0; padding-left:20px; line-height:2.0">'
+'<li>Multiple inheritance resolves methods by the <strong>MRO</strong> (C3 linearization); see <code>Cls.__mro__</code></li>'
+'<li>The MRO flattens a diamond into a line, so cooperative <code>super()</code> runs each ancestor <strong>once</strong></li>'
+'<li>Every class in the chain must call <code>super()</code> or initializers get skipped</li>'
+'<li>Mixins add one capability via multiple inheritance (sklearn <code>TransformerMixin</code>); inconsistent bases → <code>TypeError</code></li>'
+'</ul></div>'
+)
+
+# ══════════════════════════ CHUNK D ══════════════════════════
+md(
+'<div class="chunk-badge">Part 1 · Chunk D — Polymorphism &amp; Abstraction</div>'
+'<h3 class="sub">🔹 1.13 &nbsp;Duck typing — behavior over type</h3>'
+'<div class="theory-box">"If it walks like a duck and quacks like a duck, it\'s a duck." Python usually '
+'doesn\'t care about an object\'s <em>type</em> — only that it has the <strong>methods you call</strong>. A '
+'function works with <em>any</em> object exposing the right interface, no shared base class needed. This is '
+'Python\'s everyday polymorphism.</div>'
+'<div class="code-block">'
+'<span class="ck">def</span> <span class="cm">total_area</span>(shapes):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> <span class="cm">sum</span>(s.area() <span class="ck">for</span> s <span class="ck">in</span> shapes)   <span class="cc"># works for anything with .area()</span><br>'
+'<br>'
+'<span class="cc"># Circle and Square share NO base class - just both have area()</span><br>'
+'<span class="cm">total_area</span>([<span class="cm">Circle</span>(<span class="cn">1</span>), <span class="cm">Square</span>(<span class="cn">2</span>)])   <span class="cc"># 7.14159</span></div>'
+'<div class="output-block">7.14159</div>'
+'<div class="info-box">💡 <strong>ML anchor:</strong> this is exactly why any object with '
+'<code>__len__</code>+<code>__getitem__</code> is a PyTorch <code>Dataset</code>, and anything with '
+'<code>fit</code>/<code>predict</code> is a usable estimator — no inheritance required, just the right '
+'methods. Duck typing is how the ML ecosystem interoperates.</div>'
+)
+
+md(
+'<h3 class="sub">🔹 1.14 &nbsp;<code>typing.Protocol</code> — duck typing you can type-check</h3>'
+'<div class="theory-box">A <code>Protocol</code> names an interface <strong>structurally</strong>: any class '
+'with matching methods satisfies it — <em>without</em> inheriting from it. Type checkers verify it '
+'statically; add <code>@runtime_checkable</code> for <code>isinstance</code> checks (method presence only).</div>'
+'<div class="code-block">'
+'<span class="ck">from</span> typing <span class="ck">import</span> Protocol, runtime_checkable<br>'
+'<span class="cm">@runtime_checkable</span><br>'
+'<span class="ck">class</span> <span class="cm">HasArea</span>(Protocol):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">area</span>(self) -&gt; <span class="cm">float</span>: ...   <span class="cc"># just the shape of the interface</span><br>'
+'<br>'
+'<span class="cm">isinstance</span>(<span class="cm">Circle</span>(<span class="cn">1</span>), HasArea)   <span class="cc"># True  - Circle has area(), no inheritance needed</span><br>'
+'<span class="cm">isinstance</span>(<span class="cs">"x"</span>, HasArea)       <span class="cc"># False - str has no area()</span></div>'
+'<div class="output-block">True False</div>'
+'<div class="note-box">💡 <code>Protocol</code> is <strong>structural</strong> typing (matches by shape); it\'s '
+'the typed version of duck typing, and the modern way to declare "any object that behaves like X" — heavily '
+'used in typed ML/data libraries.</div>'
+)
+
+md(
+'<h3 class="sub">🔹 1.15 &nbsp;Abstract base classes (<code>abc</code>) — enforce an interface</h3>'
+'<div class="theory-box">An <strong>ABC</strong> (<code>abc.ABC</code> + <code>@abstractmethod</code>) defines an '
+'interface that subclasses <strong>must</strong> implement. You <em>can\'t instantiate</em> a class with an '
+'unimplemented abstract method — the contract is enforced at construction. This is <strong>nominal</strong> '
+'abstraction (opt-in by inheriting), the counterpart to <code>Protocol</code>\'s structural style.</div>'
+'<div class="code-block">'
+'<span class="ck">from</span> abc <span class="ck">import</span> ABC, abstractmethod<br>'
+'<span class="ck">class</span> <span class="cm">Shape</span>(ABC):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@abstractmethod</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">area</span>(self): ...          <span class="cc"># subclasses MUST provide this</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">describe</span>(self): <span class="ck">return</span> <span class="cs">f"area={self.area()}"</span>   <span class="cc"># concrete, uses the abstract one</span><br>'
+'<br>'
+'<span class="ck">class</span> <span class="cm">Rect</span>(Shape):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, w, h): self.w = w; self.h = h<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">area</span>(self): <span class="ck">return</span> self.w * self.h<br>'
+'<br>'
+'<span class="cm">Rect</span>(<span class="cn">2</span>, <span class="cn">3</span>).describe()   <span class="cc"># \'area=6\'</span><br>'
+'<span class="cm">Shape</span>()               <span class="cc"># TypeError: Can\'t instantiate abstract class Shape</span></div>'
+'<div class="output-block">area=6<br>TypeError: Can\'t instantiate abstract class Shape without an implementation for area</div>'
+'<div class="mut-grid">'
+'<div class="mut-card mc-imm"><div class="mc-title">🧬 <code>abc.ABC</code> — nominal</div>'
+'<div class="mc-body">must inherit + implement<br>enforced at instantiation<br>base can add concrete methods<br>e.g. sklearn BaseEstimator</div></div>'
+'<div class="mut-card mc-mut"><div class="mc-title">🦆 <code>Protocol</code> — structural</div>'
+'<div class="mc-body">no inheritance needed<br>matches by method shape<br>checked by the type checker<br>e.g. "any object with area()"</div></div>'
+'</div>'
+)
+
+md(
+'<h3 class="sub">🔹 1.16 &nbsp;Composition over inheritance — <em>has-a</em> vs <em>is-a</em></h3>'
+'<div class="theory-box">Inheritance says a <code>Dog</code> <strong>is-a</strong> <code>Animal</code>. '
+'<strong>Composition</strong> says a <code>Car</code> <strong>has-a</strong> <code>Engine</code> — it holds '
+'another object and delegates to it. Composition is more flexible (swap the part, no deep hierarchy) and is '
+'usually the better default; reach for inheritance only for genuine is-a specialization.</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Engine</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">start</span>(self): <span class="ck">return</span> <span class="cs">"vroom"</span><br>'
+'<br>'
+'<span class="ck">class</span> <span class="cm">Car</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self): self.engine = <span class="cm">Engine</span>()   <span class="cc"># HAS-A an engine</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">start</span>(self): <span class="ck">return</span> self.engine.start()    <span class="cc"># delegate to the part</span><br>'
+'<br>'
+'<span class="cm">Car</span>().start()   <span class="cc"># \'vroom\'</span></div>'
+'<div class="output-block">vroom</div>'
+'<div class="why-box"><strong>Why it matters:</strong> a <code>Car</code> shouldn\'t <em>inherit</em> from '
+'<code>Engine</code> (a car isn\'t a kind of engine). Composition swaps parts freely (electric engine? just '
+'inject a different object), avoids deep MRO tangles, and is the backbone of pipelines — an sklearn '
+'<code>Pipeline</code> <em>composes</em> steps rather than subclassing them.</div>'
+# ── 2. Examples ──
+'<div class="ex-header"><h2>2. Example</h2></div>'
+'<div class="ex-block"><div class="ex-title"><span class="ex-badge">Ex 1</span> Polymorphism via a base workflow (template method)</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">Animal</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">speak</span>(self): <span class="ck">raise</span> NotImplementedError<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">describe</span>(self): <span class="ck">return</span> <span class="cs">f"I say {self.speak()}"</span><br>'
+'<span class="cc"># Dog/Cat override speak(); describe() is shared and polymorphic</span><br>'
+'[a.describe() <span class="ck">for</span> a <span class="ck">in</span> [<span class="cm">Dog</span>(), <span class="cm">Cat</span>()]]   <span class="cc"># [\'I say Woof\', \'I say Meow\']</span></div>'
+'<div class="output-block">[\'I say Woof\', \'I say Meow\']</div></div>'
+'<div class="ex-block"><div class="ex-title"><span class="ex-badge">Ex 2</span> Duck typing — one function, many types</div>'
+'<div class="code-block"><span class="cm">total_area</span>([<span class="cm">Circle</span>(<span class="cn">1</span>), <span class="cm">Square</span>(<span class="cn">2</span>)])   <span class="cc"># 7.14159 - no shared base class</span></div>'
+'<div class="output-block">7.14159</div></div>'
+'<div class="ex-block"><div class="ex-title"><span class="ex-badge">Ex 3</span> An ABC enforcing an interface</div>'
+'<div class="code-block"><span class="cm">Rect</span>(<span class="cn">2</span>, <span class="cn">3</span>).describe()   <span class="cc"># \'area=6\'  (Shape() alone raises TypeError)</span></div>'
+'<div class="output-block">area=6</div>'
+'<div class="note-box">Concrete <code>describe</code> in the ABC calls the abstract <code>area</code> — the base defines the workflow, subclasses fill the gap (sklearn <code>BaseEstimator</code> shape).</div></div>'
+'<div class="ex-block"><div class="ex-title"><span class="ex-badge">Ex 4</span> Composition — build from parts</div>'
+'<div class="code-block"><span class="cm">Car</span>().start()   <span class="cc"># \'vroom\' - Car delegates to its Engine (has-a)</span></div>'
+'<div class="output-block">vroom</div></div>'
+# ── 3. Edge Cases ──
+'<div class="warn-header"><h2>3. Edge Cases</h2></div>'
+'<p style="color:#cdd6f4;font-family:\'Segoe UI\',sans-serif;font-size:0.92em;margin:0 0 12px 0">All outputs verified by running.</p>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 1</span> Can\'t instantiate an ABC with an unimplemented method</div>'
+'<div class="code-block"><span class="ck">class</span> <span class="cm">Partial</span>(Shape): <span class="ck">pass</span>   <span class="cc"># doesn\'t implement area</span><br><span class="cm">Partial</span>()   <span class="cc"># TypeError: Can\'t instantiate abstract class Partial</span></div>'
+'<div class="output-block">TypeError: Can\'t instantiate abstract class Partial without an implementation for area</div>'
+'<div class="why-box"><strong>Why:</strong> the abstract contract is enforced at construction — you can\'t '
+'create an object that\'s missing a required method. This is the value of an ABC over a plain base class.</div></div>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 2</span> Duck typing fails at <em>call</em> time, not definition time</div>'
+'<div class="code-block"><span class="cm">total_area</span>([<span class="cm">object</span>()])   <span class="cc"># AttributeError: \'object\' object has no attribute \'area\'</span></div>'
+'<div class="output-block">AttributeError: \'object\' object has no attribute \'area\'</div>'
+'<div class="why-box"><strong>Why:</strong> nothing checks the interface up front — the error surfaces only '
+'when the missing method is called. That\'s the trade-off of duck typing: flexible, but errors are deferred '
+'(a <code>Protocol</code> + type checker catches them earlier).</div></div>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 3</span> <code>Protocol</code> <code>isinstance</code> checks method <em>presence</em>, not signature</div>'
+'<div class="code-block"><span class="cm">isinstance</span>(<span class="cm">Circle</span>(<span class="cn">1</span>), HasArea)   <span class="cc"># True - only checks that .area exists</span></div>'
+'<div class="output-block">True</div>'
+'<div class="why-box"><strong>Why:</strong> <code>@runtime_checkable</code> <code>isinstance</code> only verifies '
+'the method <em>names</em> exist — not their argument types or return type. Full signature checking is the '
+'static type checker\'s job.</div></div>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 4</span> Prefer composition when it isn\'t genuinely "is-a"</div>'
+'<div class="code-block"><span class="cc"># WRONG: class Car(Engine)  - a car is NOT a kind of engine</span><br><span class="cc"># RIGHT: class Car:  self.engine = Engine()   - a car HAS an engine</span></div>'
+'<div class="output-block">design rule, not a runtime error</div>'
+'<div class="why-box"><strong>Why:</strong> inheriting for code reuse when the is-a relationship is false '
+'leads to fragile hierarchies and leaked parent methods. If you only want to <em>use</em> another class, '
+'compose it.</div></div>'
+'<hr class="divider">'
+'<div class="info-box">📎 <strong>End of 7C Part 1</strong> (Chunks A–D: four pillars, inheritance, '
+'<code>super()</code>, multiple inheritance &amp; MRO, polymorphism &amp; abstraction, 4 examples, 4 edge '
+'cases). <strong>Part 2</strong> — Golden Rules → Common Traps → Exercise. <strong>Part 3</strong> — ML '
+'Real-World → Interview Q&amp;A → Summary. Then <strong>7D — Properties &amp; Methods</strong>.</div>'
+)
+
+# ══════════════════════════ PART 2 ══════════════════════════
+md(
+'<div class="info-box"><strong>Part 2:</strong> Golden Rules → Common Traps → Exercise</div>'
+'<div class="part-header"><h2>4. Golden Rules</h2></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 1</span> Inherit only for a genuine <em>is-a</em> relationship; otherwise compose.</div>'
+'<div class="body-txt">A <code>Car</code> HAS an <code>Engine</code> (compose); a <code>Dog</code> IS-A <code>Animal</code> (inherit). Composition is the flexible default.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 2</span> Call <code>super().__init__(...)</code> when you override <code>__init__</code>.</div>'
+'<div class="body-txt">And use the no-arg <code>super()</code> everywhere — it follows the MRO correctly, even under multiple inheritance.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 3</span> Keep hierarchies shallow; prefer mixins for cross-cutting capability.</div>'
+'<div class="body-txt">One base + small mixins beats a deep chain. Deep inheritance is hard to follow and fragile.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 4</span> Program to an interface — duck typing or <code>Protocol</code>, not concrete types.</div>'
+'<div class="body-txt">Accept "anything with <code>.area()</code>" rather than a specific class. It\'s what makes the ML ecosystem interoperate.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 5</span> Use an ABC to enforce a required interface; a <code>Protocol</code> for structural typing.</div>'
+'<div class="body-txt">ABC = nominal (must inherit + implement, checked at construction). Protocol = structural (matches by shape, checked statically).</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 6</span> Design base classes for extension — the template-method pattern.</div>'
+'<div class="body-txt">A concrete <code>run()</code> that calls abstract steps lets subclasses fill the gaps (sklearn <code>BaseEstimator</code>).</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 7</span> Check <code>Cls.__mro__</code> when multiple inheritance surprises you.</div>'
+'<div class="body-txt">The MRO explains which method wins and the order cooperative <code>super()</code> follows.</div></div>'
+)
+
+md(
+'<div class="trap-header"><h2>5. Common Traps</h2></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 1</span> Forgetting <code>super().__init__()</code>.</div>'
+'<div class="body-txt">Parent state never gets set → <code>AttributeError</code>. <strong>Fix:</strong> chain to the parent in the child\'s <code>__init__</code>.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 2</span> Inheriting for code reuse when it isn\'t is-a.</div>'
+'<div class="body-txt">Fragile hierarchies + leaked parent methods. <strong>Fix:</strong> compose (has-a) and delegate.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 3</span> Deep / tangled inheritance.</div>'
+'<div class="body-txt">Hard-to-trace behavior; MRO surprises. <strong>Fix:</strong> shallow hierarchy + mixins, or composition.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 4</span> A broken cooperative <code>super()</code> chain.</div>'
+'<div class="body-txt">One class in a diamond skips <code>super()</code> → some initializers never run. <strong>Fix:</strong> every class calls <code>super()</code>.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 5</span> Inconsistent base order → MRO <code>TypeError</code>.</div>'
+'<div class="body-txt"><code>class C(Base, DerivedFromBase)</code> can\'t linearize. <strong>Fix:</strong> list the more-derived class first.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 6</span> Relying on duck typing where the method may be missing.</div>'
+'<div class="body-txt">Fails at call time with <code>AttributeError</code>. <strong>Fix:</strong> a <code>Protocol</code> + type checker, or an ABC, to catch it earlier.</div></div>'
+)
+
+md(
+'<div class="part-header"><h2>6. Exercise</h2></div>'
+'<div class="body-txt" style="margin-bottom:10px">Twelve problems, easy → hard, across inheritance / <code>super()</code> / MRO / duck typing / ABC / composition. Attempt each in <code>01_inheritance.ipynb</code>; hints only here — solutions in <code>solutions.ipynb</code>.</div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-easy">Easy</span> E1 — <code>Vehicle(wheels)</code> base + <code>describe()</code>; <code>Car</code>/<code>Motorcycle</code> set wheels</div><div class="hint-box">💡 Subclass <code>__init__</code> calls <code>super().__init__(4)</code> / <code>(2)</code>.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-easy">Easy</span> E2 — <code>Shape</code> base (<code>area</code> raises); <code>Circle</code>/<code>Square</code> override; sum areas polymorphically</div><div class="hint-box">💡 <code>sum(s.area() for s in shapes)</code> — same loop, different behavior.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-easy">Easy</span> E3 — <code>Student(Person)</code> adds <code>school</code> via <code>super().__init__</code></div><div class="hint-box">💡 <code>super().__init__(name)</code> then <code>self.school = school</code>.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E4 — <code>PoliteGreeter</code> extends <code>Greeter.greet()</code> with <code>super()</code></div><div class="hint-box">💡 <code>return super().greet() + ", please"</code> — extend, don\'t replace.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E5 — <code>DictReprMixin</code>: a <code>__repr__</code> from <code>self.__dict__</code>, mixed into a class</div><div class="hint-box">💡 <code>f"{type(self).__name__}({self.__dict__})"</code>; add via multiple inheritance.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E6 — <code>Storage</code> ABC (abstract <code>save</code>/<code>load</code>) + a <code>DictStorage</code> impl</div><div class="hint-box">💡 <code>abc.ABC</code> + <code>@abstractmethod</code>; instantiating <code>Storage()</code> should raise.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E7 — <code>Wallet</code> via <strong>composition</strong>: holds amounts, <code>deposit</code>/<code>total</code></div><div class="hint-box">💡 <code>self.amounts = []</code> in <code>__init__</code>; delegate to the list.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E8 — Hierarchy checks: <code>issubclass</code>/<code>isinstance</code> on a 3-level chain</div><div class="hint-box">💡 Build <code>A</code> ← <code>B</code> ← <code>C</code>; confirm <code>isinstance(C(), A)</code> is True but <code>isinstance(A(), C)</code> is False.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-hard">Hard</span> E9 — Diamond MRO: cooperative <code>super()</code> → return the call order</div><div class="hint-box">💡 A/B/C/D where each <code>m</code> prepends its name + <code>super().m()</code>; check against <code>D.__mro__</code>.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-hard">Hard</span> E10 — <code>HasArea</code> <code>Protocol</code>: <code>isinstance</code> works on any class with <code>area()</code></div><div class="hint-box">💡 <code>@runtime_checkable class HasArea(Protocol): def area(self) -&gt; float: ...</code></div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-hard">Hard</span> E11 — Template-method <code>Pipeline</code> ABC: <code>run()</code> = extract → transform → load</div><div class="hint-box">💡 Concrete <code>run</code> calls three abstract methods; a subclass fills them (an ML ETL shape).</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-hard">Hard</span> E12 — Duck-typed dispatch: <code>render(items)</code> calls <code>.draw()</code> on each</div><div class="hint-box">💡 Works for <em>any</em> object with <code>draw()</code> — unrelated classes, no shared base.</div></div>'
+)
+
+# ══════════════════════════ PART 3 ══════════════════════════
+md(
+'<div class="info-box"><strong>Part 3:</strong> ML Real-World → Interview Q&amp;A → Code Challenges → Summary</div>'
+'<div class="ml-header"><h2>7. ML Real-World Connection</h2></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 1</span> Subclassing <code>nn.Module</code></div>'
+'<div class="body-txt">Every PyTorch model is <code>class Net(nn.Module)</code> that calls <code>super().__init__()</code> (mandatory — the parent registers parameters/buffers) and overrides <code>forward</code>. Miss the <code>super()</code> call and the module is broken. Pure 7C.</div></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 2</span> sklearn <code>BaseEstimator</code> + mixins</div>'
+'<div class="body-txt">Estimators inherit <code>BaseEstimator</code> and mix in <code>TransformerMixin</code> (adds <code>fit_transform</code>) or <code>ClassifierMixin</code> (adds <code>score</code>) — the mixin pattern giving capability without a deep chain.</div></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 3</span> Duck typing / <code>Protocol</code> — the interop glue</div>'
+'<div class="body-txt">Anything with <code>__len__</code>+<code>__getitem__</code> is a <code>Dataset</code>; anything with <code>fit</code>/<code>predict</code> is a usable estimator. The ecosystem composes by interface, not by a shared base class.</div></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 4</span> ABCs &amp; the template method</div>'
+'<div class="body-txt">Custom base estimators use abstract methods + a concrete workflow (<code>fit</code> calls <code>_fit</code>). Subclasses fill the specific step; the base enforces the interface — challenge C8\'s registry is how model zoos auto-collect subclasses.</div></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 5</span> Composition — <code>Pipeline</code> over inheritance</div>'
+'<div class="body-txt">An sklearn <code>Pipeline</code> <em>composes</em> steps (has-a list of transformers) rather than subclassing them; dependency injection (pass a logger/optimizer in) is the same composition idea. Flexible, swappable, testable.</div></div>'
+)
+
+md(
+'<div class="interview-header"><h2>8. Interview Questions</h2></div>'
+'<div class="sub-header"><h3>8a — Conceptual Q&amp;A</h3></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">1</span> Inheritance vs composition — when each?</div><div class="qa-a">Inheritance for a genuine <em>is-a</em> (Dog is-a Animal); composition for <em>has-a</em> (Car has-a Engine). Prefer composition — more flexible, avoids deep hierarchies.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">2</span> What does <code>super()</code> do?</div><div class="qa-a">Calls the next class in the MRO (not literally "the parent"). Used to extend overridden methods and to run parent <code>__init__</code>.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">3</span> What is the MRO?</div><div class="qa-a">Method resolution order — the single, deterministic ordering of ancestors (C3 linearization) that attribute lookup and <code>super()</code> follow. See <code>Cls.__mro__</code>.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">4</span> What is the diamond problem, and how does Python solve it?</div><div class="qa-a">When two bases share an ancestor, which method wins? The MRO linearizes the diamond so the shared ancestor is visited once; cooperative <code>super()</code> runs each class exactly once.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">5</span> Why must every class in a diamond call <code>super()</code>?</div><div class="qa-a">The chain is threaded through the MRO; if one class skips <code>super()</code>, the classes after it in the MRO never run.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">6</span> What is duck typing?</div><div class="qa-a">Relying on an object having the needed methods rather than being a specific type. Flexible polymorphism; errors surface at call time.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">7</span> <code>Protocol</code> vs ABC?</div><div class="qa-a"><code>Protocol</code> = structural (matches by method shape, no inheritance, static-checked); ABC = nominal (must inherit + implement, enforced at instantiation).</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">8</span> What does <code>@abstractmethod</code> guarantee?</div><div class="qa-a">A subclass must implement it; you can\'t instantiate a class that still has an unimplemented abstract method (<code>TypeError</code>).</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">9</span> <code>isinstance</code> vs <code>issubclass</code>?</div><div class="qa-a"><code>isinstance(obj, C)</code> checks an object against a class (and its subclasses); <code>issubclass(A, B)</code> checks a class against another. Both respect the whole chain.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">10</span> What is a mixin?</div><div class="qa-a">A small class that adds one reusable capability via multiple inheritance, not meant to stand alone (e.g. sklearn <code>TransformerMixin</code>).</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">11</span> What is the template-method pattern?</div><div class="qa-a">A base defines a concrete workflow that calls abstract steps; subclasses fill the steps. e.g. a <code>run()</code> calling <code>extract</code>/<code>transform</code>/<code>load</code>.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">12</span> What can go wrong with multiple inheritance?</div><div class="qa-a">MRO surprises, broken cooperative <code>super()</code> chains, and inconsistent base orders that raise <code>TypeError</code>. Keep it shallow; prefer mixins/composition.</div></div>'
+)
+
+md(
+'<div class="sub-header"><h3>8b — Code Challenges (attempt, then expand the solution)</h3></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-easy">Easy</span> C1 — <code>SavingsAccount(Account)</code>: adds <code>add_interest()</code> via <code>super().__init__</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">class</span> <span class="cm">Account</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, balance=<span class="cn">0</span>): self.balance = balance<br><span class="ck">class</span> <span class="cm">SavingsAccount</span>(Account):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, balance=<span class="cn">0</span>, rate=<span class="cn">0.05</span>):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">super</span>().<span class="cm">__init__</span>(balance); self.rate = rate<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">add_interest</span>(self): self.balance += self.balance * self.rate; <span class="ck">return</span> self.balance</div><div class="qa-a"><code>SavingsAccount(100).add_interest()</code> → 105.0.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-easy">Easy</span> C2 — <code>Media</code> base + <code>Song</code>/<code>Video</code> override <code>play()</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">class</span> <span class="cm">Media</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">play</span>(self): <span class="ck">raise</span> NotImplementedError<br><span class="ck">class</span> <span class="cm">Song</span>(Media):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">play</span>(self): <span class="ck">return</span> <span class="cs">"playing song"</span><br><span class="ck">class</span> <span class="cm">Video</span>(Media):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">play</span>(self): <span class="ck">return</span> <span class="cs">"playing video"</span></div><div class="qa-a"><code>[m.play() for m in [Song(), Video()]]</code> → polymorphism over a mixed list.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-med">Med</span> C3 — <code>OrderedByKeyMixin</code>: <code>__eq__</code>/<code>__lt__</code> from a subclass <code>sort_key()</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">class</span> <span class="cm">OrderedByKeyMixin</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">sort_key</span>(self): <span class="ck">raise</span> NotImplementedError<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__eq__</span>(self, o): <span class="ck">return</span> self.sort_key() == o.sort_key()<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__lt__</span>(self, o): <span class="ck">return</span> self.sort_key() &lt; o.sort_key()<br><span class="ck">class</span> <span class="cm">Product</span>(OrderedByKeyMixin):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, name, price): self.name = name; self.price = price<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">sort_key</span>(self): <span class="ck">return</span> self.price</div><div class="qa-a">A mixin that provides ordering from a hook the subclass defines — sorts Products by price. Combines mixins (7C) + dunders (7B).</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-med">Med</span> C4 — <code>Serializer</code> ABC + <code>JsonSerializer</code>/<code>CsvSerializer</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">from</span> abc <span class="ck">import</span> ABC, abstractmethod<br><span class="ck">import</span> json<br><span class="ck">class</span> <span class="cm">Serializer</span>(ABC):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@abstractmethod</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">serialize</span>(self, data): ...<br><span class="ck">class</span> <span class="cm">JsonSerializer</span>(Serializer):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">serialize</span>(self, data): <span class="ck">return</span> json.<span class="cm">dumps</span>(data)<br><span class="ck">class</span> <span class="cm">CsvSerializer</span>(Serializer):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">serialize</span>(self, data): <span class="ck">return</span> <span class="cs">","</span>.<span class="cm">join</span>(<span class="cm">map</span>(<span class="cm">str</span>, data.<span class="cm">values</span>()))</div><div class="qa-a">One interface, interchangeable implementations — strategy pattern. Callers depend on <code>Serializer</code>, not a concrete class.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-med">Med</span> C5 — Dependency injection via composition: <code>Service(logger)</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">class</span> <span class="cm">Logger</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self): self.messages = []<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">log</span>(self, msg): self.messages.<span class="cm">append</span>(msg)<br><span class="ck">class</span> <span class="cm">Service</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, logger): self.logger = logger   <span class="cc"># injected dependency</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">run</span>(self): self.logger.<span class="cm">log</span>(<span class="cs">"ran"</span>); <span class="ck">return</span> <span class="cs">"done"</span></div><div class="qa-a">The <code>Service</code> uses a <code>Logger</code> without inheriting it — pass any object with <code>log()</code> (duck typing), swap it in tests. Composition + DI.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-med">Med</span> C6 — 3-level <code>super()</code> chain: <code>A → B → C</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">class</span> <span class="cm">A</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">setup</span>(self): <span class="ck">return</span> [<span class="cs">"A"</span>]<br><span class="ck">class</span> <span class="cm">B</span>(A):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">setup</span>(self): <span class="ck">return</span> <span class="cm">super</span>().setup() + [<span class="cs">"B"</span>]<br><span class="ck">class</span> <span class="cm">C</span>(B):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">setup</span>(self): <span class="ck">return</span> <span class="cm">super</span>().setup() + [<span class="cs">"C"</span>]</div><div class="qa-a"><code>C().setup()</code> → <code>[\'A\', \'B\', \'C\']</code>. Each level extends the chain without naming a specific parent.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-hard">Hard</span> C7 — <code>SupportsLen</code> <code>Protocol</code>: works on list, str, and a custom class</div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">from</span> typing <span class="ck">import</span> Protocol, runtime_checkable<br><span class="cm">@runtime_checkable</span><br><span class="ck">class</span> <span class="cm">SupportsLen</span>(Protocol):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__len__</span>(self) -&gt; <span class="cm">int</span>: ...<br><span class="ck">def</span> <span class="cm">describe_size</span>(x): <span class="ck">return</span> <span class="cm">len</span>(x) <span class="ck">if</span> <span class="cm">isinstance</span>(x, SupportsLen) <span class="ck">else</span> <span class="ck">None</span></div><div class="qa-a"><code>describe_size([1,2,3])</code>→3, <code>"hi"</code>→2, a custom <code>Box</code> with <code>__len__</code>→its length, <code>42</code>→None. Structural typing over unrelated types.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-hard">Hard</span> C8 — Auto-registering plugins via <code>__init_subclass__</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">class</span> <span class="cm">Plugin</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;registry = {}<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init_subclass__</span>(cls, **kwargs):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">super</span>().<span class="cm">__init_subclass__</span>(**kwargs)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Plugin.registry[cls.__name__] = cls<br><br><span class="ck">class</span> <span class="cm">Foo</span>(Plugin): <span class="ck">pass</span><br><span class="ck">class</span> <span class="cm">Bar</span>(Plugin): <span class="ck">pass</span></div><div class="qa-a"><code>__init_subclass__</code> runs when a subclass is <em>defined</em>, so subclasses auto-register: <code>Plugin.registry</code> → <code>{\'Foo\': Foo, \'Bar\': Bar}</code>. This is how model/layer zoos collect implementations (the class-hook cousin of the <code>@register</code> decorator from S6).</div></details></div>'
+)
+
+md(
+'<div class="summary-header"><h2>9. Summary Table — Session 7C</h2></div>'
+'<table class="summary">'
+'<tr><th>Concept</th><th>Why it matters in ML</th><th>Interview frequency</th></tr>'
+'<tr><td>Inheritance &amp; overriding</td><td>Subclassing <code>nn.Module</code>, custom estimators</td><td><span class="freq-vh">Very High</span></td></tr>'
+'<tr><td><code>super()</code></td><td>Mandatory in <code>nn.Module.__init__</code>; extending methods</td><td><span class="freq-vh">Very High</span></td></tr>'
+'<tr><td>MRO / C3 / diamond</td><td>Debugging multiple-inheritance surprises</td><td><span class="freq-h">High</span></td></tr>'
+'<tr><td>Duck typing</td><td>Dataset/estimator interfaces; ecosystem interop</td><td><span class="freq-vh">Very High</span></td></tr>'
+'<tr><td><code>typing.Protocol</code></td><td>Typed structural interfaces in modern libraries</td><td><span class="freq-h">High</span></td></tr>'
+'<tr><td>ABCs (<code>abc</code>)</td><td>Enforcing estimator/layer interfaces</td><td><span class="freq-h">High</span></td></tr>'
+'<tr><td>Mixins</td><td>sklearn <code>TransformerMixin</code>/<code>ClassifierMixin</code></td><td><span class="freq-m">Medium</span></td></tr>'
+'<tr><td>Composition over inheritance</td><td><code>Pipeline</code>, dependency injection</td><td><span class="freq-vh">Very High</span></td></tr>'
+'<tr><td>Template method</td><td>Base workflow + subclass steps (<code>fit</code>→<code>_fit</code>)</td><td><span class="freq-m">Medium</span></td></tr>'
+'</table>'
+'<hr class="divider">'
+'<div style="background:#1e1e2e; border-left:4px solid #a6e3a1; padding:14px 18px; border-radius:8px; font-family:monospace; color:#cdd6f4;">'
+'<strong style="color:#a6e3a1">✅ 7C complete.</strong> Inheritance &amp; MRO end to end: the four pillars, '
+'inheritance &amp; overriding, <code>super()</code>, multiple inheritance &amp; MRO, polymorphism (duck typing) '
+'&amp; abstraction (<code>Protocol</code>/ABC), composition, 4 examples, 4 edge cases, 7 golden rules, 6 '
+'traps, 12 exercises, ML connections, 12 conceptual Q&amp;A, 8 code challenges, summary table.<br>'
+'<span style="color:#6c7086">Next — 7D: Properties &amp; Methods (<code>@property</code> getters/setters, '
+'<code>@classmethod</code> alt constructors, <code>@staticmethod</code>, name mangling, <code>__slots__</code>) '
+'— encapsulation + the Session 6 decorator-on-methods payoff.</span></div>'
+)
+
+nb = new_notebook(cells=cells)
+nb.metadata["kernelspec"] = {"display_name": "Python 3", "language": "python", "name": "python3"}
+nb.metadata["language_info"] = {"name": "python"}
+nbf.write(nb, "theory.ipynb")
+print("wrote theory.ipynb with", len(cells), "cells")
