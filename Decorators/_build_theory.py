@@ -1,0 +1,574 @@
+# Builder for Session 6 - Decorators, theory.ipynb.
+# Deep 4-chunk session. Chunk A = the decorator mechanism. Catppuccin Mocha UI.
+import nbformat as nbf
+from nbformat.v4 import new_notebook, new_markdown_cell
+
+cells = []
+
+STYLE = """<style>
+  * { box-sizing:border-box; word-wrap:break-word; overflow-wrap:break-word; }
+  body, .jp-RenderedHTMLCommon { padding:0 !important; margin:0 !important; overflow-x:hidden !important; }
+  h1.main-title { color:#cba6f7; font-family:'Segoe UI',sans-serif; font-size:2em; border-bottom:2px solid #45475a; padding-bottom:10px; margin-bottom:16px; }
+  .part-header { background:linear-gradient(90deg,#313244,#1e1e2e); border-left:5px solid #cba6f7; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .part-header h2 { color:#cba6f7; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .chunk-badge { display:inline-block; background:#2a1e2e; border:1px solid #cba6f7; color:#cba6f7; border-radius:20px; padding:2px 12px; font-size:0.82em; font-family:'Courier New',monospace; margin:6px 0; }
+  h3.sub { color:#89dceb; font-family:'Segoe UI',sans-serif; margin:20px 0 8px; font-size:1.02em; }
+  .theory-box { background:#2a2a3d; border-left:5px solid #89b4fa; border-radius:10px; padding:16px 22px; margin:14px 0; color:#cdd6f4; font-family:'Segoe UI',sans-serif; line-height:1.8; max-width:100%; }
+  .code-block { background:#181825; border:1px solid #313244; border-radius:8px; padding:14px 20px; font-family:'Courier New',monospace; font-size:0.9em; color:#a6e3a1; margin:10px 0; line-height:2; overflow-x:auto; max-width:100%; }
+  .output-block { background:#11111b; border:1px solid #313244; border-radius:8px; padding:12px 18px; font-family:'Courier New',monospace; font-size:0.87em; color:#cdd6f4; margin:4px 0 10px; line-height:1.9; overflow-x:auto; max-width:100%; }
+  .info-box { background:#1e2030; border-left:4px solid #89b4fa; border-radius:8px; padding:11px 16px; margin:10px 0; color:#89b4fa; font-family:'Segoe UI',sans-serif; font-size:0.92em; line-height:1.7; }
+  .note-box { background:#1c1c2e; border-left:4px solid #a6e3a1; border-radius:8px; padding:11px 16px; margin:10px 0; color:#a6e3a1; font-family:'Segoe UI',sans-serif; font-size:0.92em; line-height:1.7; }
+  .why-box { background:#2a1e2e; border-left:4px solid #cba6f7; border-radius:0 8px 8px 0; padding:10px 14px; margin:8px 0; color:#cba6f7; font-family:'Segoe UI',sans-serif; font-size:0.9em; line-height:1.7; }
+  .warn-box { background:#2a1f00; border-left:4px solid #f9e2af; border-radius:8px; padding:11px 16px; margin:10px 0; color:#f9e2af; font-family:'Segoe UI',sans-serif; font-size:0.92em; line-height:1.7; }
+  .theory-box code, .info-box code, .note-box code, .why-box code, .warn-box code { background:#313244; padding:1px 6px; border-radius:4px; color:#a6e3a1; font-family:'Courier New',monospace; font-size:0.88em; }
+  .mut-grid { display:block; margin:12px 0; }
+  .mut-card { display:inline-block; width:48%; min-width:200px; vertical-align:top; border-radius:10px; padding:14px 16px; margin-right:2%; margin-bottom:10px; font-family:'Segoe UI',sans-serif; font-size:0.88em; line-height:1.85; }
+  .mut-card:last-child { margin-right:0; }
+  .mc-imm { background:#1e2030; border:1px solid #89b4fa; border-top:3px solid #89b4fa; }
+  .mc-mut { background:#1a2e1a; border:1px solid #a6e3a1; border-top:3px solid #a6e3a1; }
+  .mc-imm .mc-title { color:#89b4fa; font-weight:bold; margin-bottom:8px; }
+  .mc-mut .mc-title { color:#a6e3a1; font-weight:bold; margin-bottom:8px; }
+  .mc-body { color:#cdd6f4; font-family:'Courier New',monospace; font-size:0.86em; }
+  .ex-header { background:linear-gradient(90deg,#1a2e1a,#1e1e2e); border-left:5px solid #a6e3a1; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .ex-header h2 { color:#a6e3a1; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .warn-header { background:linear-gradient(90deg,#2a1f00,#1e1e2e); border-left:5px solid #f9e2af; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .warn-header h2 { color:#f9e2af; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .ex-block, .edge-block { background:#1e1e2e; border:1px solid #313244; border-radius:10px; padding:16px 20px; margin:12px 0; }
+  .ex-title { color:#a6e3a1; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.95em; margin-bottom:10px; }
+  .ex-badge { display:inline-block; background:#1a2e1a; border:1px solid #a6e3a1; color:#a6e3a1; border-radius:20px; padding:2px 10px; font-size:0.8em; font-family:'Courier New',monospace; margin-right:8px; }
+  .edge-title { color:#f9e2af; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.95em; margin-bottom:10px; }
+  .edge-badge { display:inline-block; background:#2a1f00; border:1px solid #f9e2af; color:#f9e2af; border-radius:20px; padding:2px 10px; font-size:0.8em; font-family:'Courier New',monospace; margin-right:8px; }
+  .rule-block, .trap-block, .ml-block, .exr-block, .cc-block { background:#1e1e2e; border:1px solid #313244; border-radius:10px; padding:14px 18px; margin:10px 0; }
+  .rule-title { color:#cba6f7; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.92em; margin-bottom:6px; }
+  .rule-badge { display:inline-block; background:#2a1e2e; border:1px solid #cba6f7; color:#cba6f7; border-radius:20px; padding:2px 10px; font-size:0.76em; font-family:'Courier New',monospace; margin-right:8px; }
+  .trap-header { background:linear-gradient(90deg,#2e1e1e,#1e1e2e); border-left:5px solid #f38ba8; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .trap-header h2 { color:#f38ba8; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .trap-title { color:#f38ba8; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.92em; margin-bottom:6px; }
+  .trap-badge { display:inline-block; background:#2e1e1e; border:1px solid #f38ba8; color:#f38ba8; border-radius:20px; padding:2px 10px; font-size:0.76em; font-family:'Courier New',monospace; margin-right:8px; }
+  .ml-header { background:linear-gradient(90deg,#1a2e1a,#1e1e2e); border-left:5px solid #a6e3a1; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .ml-header h2 { color:#a6e3a1; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .ml-title { color:#a6e3a1; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.92em; margin-bottom:6px; }
+  .ml-badge { display:inline-block; background:#1a2e1a; border:1px solid #a6e3a1; color:#a6e3a1; border-radius:20px; padding:2px 10px; font-size:0.76em; font-family:'Courier New',monospace; margin-right:8px; }
+  .body-txt { color:#cdd6f4; font-family:'Segoe UI',sans-serif; font-size:0.9em; line-height:1.7; }
+  .body-txt code { background:#313244; padding:1px 5px; border-radius:4px; color:#a6e3a1; font-family:'Courier New',monospace; font-size:0.86em; }
+  .interview-header { background:linear-gradient(90deg,#2a1e2e,#1e1e2e); border-left:5px solid #cba6f7; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .interview-header h2 { color:#cba6f7; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  .sub-header { background:linear-gradient(90deg,#1e2030,#1e1e2e); border-left:4px solid #89b4fa; border-radius:8px; padding:8px 16px; margin:16px 0 8px; }
+  .sub-header h3 { color:#89b4fa; margin:0; font-size:0.95em; font-family:'Segoe UI',sans-serif; }
+  .qa-block { background:#1e1e2e; border:1px solid #313244; border-radius:10px; padding:11px 16px; margin:8px 0; }
+  .qa-q { color:#f9e2af; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.89em; margin-bottom:5px; line-height:1.5; }
+  .qa-a { color:#cdd6f4; font-family:'Segoe UI',sans-serif; font-size:0.87em; line-height:1.7; }
+  .qa-a code, .qa-q code { background:#313244; padding:1px 5px; border-radius:4px; color:#a6e3a1; font-family:'Courier New',monospace; font-size:0.85em; }
+  .q-num { display:inline-block; min-width:22px; height:22px; border-radius:50%; background:#2a1e2e; border:2px solid #cba6f7; color:#cba6f7; font-weight:bold; font-size:0.75em; text-align:center; line-height:19px; font-family:'Courier New',monospace; margin-right:8px; }
+  .cc-title { color:#89b4fa; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.91em; margin-bottom:8px; }
+  .cc-badge { display:inline-block; border-radius:20px; padding:2px 10px; font-size:0.74em; font-family:'Courier New',monospace; margin-right:8px; }
+  .badge-easy { background:#1a2e1a; border:1px solid #a6e3a1; color:#a6e3a1; }
+  .badge-med { background:#1e2030; border:1px solid #89b4fa; color:#89b4fa; }
+  .badge-hard { background:#2e1e1e; border:1px solid #f38ba8; color:#f38ba8; }
+  details.sol { background:#181825; border:1px solid #313244; border-radius:8px; padding:8px 14px; margin:8px 0; }
+  details.sol summary { color:#a6e3a1; font-family:'Segoe UI',sans-serif; font-size:0.85em; cursor:pointer; font-weight:bold; }
+  .hint-box { background:#1c1c2e; border-left:4px solid #89dceb; border-radius:0 8px 8px 0; padding:8px 12px; margin:6px 0; color:#89dceb; font-family:'Segoe UI',sans-serif; font-size:0.85em; line-height:1.6; }
+  .hint-box code { background:#313244; padding:1px 5px; border-radius:4px; color:#a6e3a1; font-family:'Courier New',monospace; font-size:0.82em; }
+  .exr-title { color:#cdd6f4; font-family:'Segoe UI',sans-serif; font-weight:bold; font-size:0.9em; margin-bottom:6px; }
+  .summary-header { background:linear-gradient(90deg,#1e2030,#1e1e2e); border-left:5px solid #89b4fa; border-radius:10px; padding:14px 22px; margin:24px 0 10px; }
+  .summary-header h2 { color:#89b4fa; margin:0; font-size:1.3em; font-family:'Segoe UI',sans-serif; }
+  table.summary { width:100%; border-collapse:collapse; font-family:'Segoe UI',sans-serif; font-size:0.86em; margin:12px 0; }
+  table.summary th { background:#313244; color:#cba6f7; padding:9px 14px; text-align:left; border:1px solid #45475a; }
+  table.summary td { background:#1e1e2e; color:#cdd6f4; padding:8px 14px; border:1px solid #313244; vertical-align:top; line-height:1.6; }
+  table.summary td:first-child { color:#89dceb; }
+  table.summary td:last-child { text-align:center; font-weight:bold; }
+  .freq-vh { color:#f38ba8; } .freq-h { color:#f9e2af; } .freq-m { color:#89b4fa; }
+  .divider { border:none; border-top:1px solid #313244; margin:22px 0; }
+  .cc { color:#6c7086; } .cs { color:#f9e2af; } .ck { color:#cba6f7; } .cm { color:#f38ba8; } .cn { color:#fab387; }
+</style>
+"""
+
+def md(body):
+    cells.append(new_markdown_cell(STYLE + body))
+
+# ── Title ──────────────────────────────────────────────────────────────
+md(
+'<h1 class="main-title">🐍 Session 6 — Decorators</h1>'
+'<div class="info-box"><strong>Part 1:</strong> Theory → Example → Edge Cases &nbsp;·&nbsp; deep 4-chunk treatment.</div>'
+'<div class="chunk-badge">Part 1 · Chunk A — The Decorator Mechanism</div>'
+'<div class="theory-box" style="border-left-color:#cba6f7;">'
+'A decorator is just the Session 5 payoff made syntactic. You already built '
+'<code>memoize</code>, <code>once</code>, <code>trace</code>, and <code>with_retry</code> as '
+'<strong style="color:#89b4fa">closures that wrap a function and forward <code>*args</code>/'
+'<code>**kwargs</code></strong> — a decorator is exactly that, with a <code>@</code> to attach it. '
+'Chunk A nails the mechanism; B fixes metadata with <code>functools.wraps</code>; C adds arguments; D '
+'covers stacking, class-based decorators, and methods.</div>'
+)
+
+# ── 1.1 what is a decorator ────────────────────────────────────────────
+md(
+'<div class="part-header"><h2>1. Theory</h2></div>'
+'<h3 class="sub">🔹 1.1 &nbsp;A decorator is a callable that takes a function and returns a function</h3>'
+'<div class="theory-box">Because functions are first-class objects (Session 5), you can write a function '
+'that <strong>accepts another function and returns a replacement</strong> — usually a wrapper that adds '
+'behavior around the original. That is a decorator. It lets you bolt on cross-cutting concerns (logging, '
+'timing, caching, access checks) <strong>without editing the function itself</strong>.</div>'
+'<div class="info-box">💡 <strong>SQL / Power BI anchor:</strong> like a view or a stored-proc wrapper that '
+'adds logging/security around a base query without changing it — callers use the wrapped name, the original '
+'logic is untouched.</div>'
+)
+
+# ── 1.2 @ is sugar ─────────────────────────────────────────────────────
+md(
+'<h3 class="sub">🔹 1.2 &nbsp;<code>@deco</code> is syntactic sugar for <code>f = deco(f)</code></h3>'
+'<div class="theory-box">The <code>@</code> line above a <code>def</code> is pure shorthand: it calls the '
+'decorator on the function and rebinds the name to whatever it returns. These two are identical:</div>'
+'<div class="code-block">'
+'<span class="cc"># with @ syntax</span><br>'
+'<span class="cm">@announce</span><br>'
+'<span class="ck">def</span> <span class="cm">add</span>(a, b): <span class="ck">return</span> a + b<br>'
+'<br>'
+'<span class="cc"># exactly equivalent, without @</span><br>'
+'<span class="ck">def</span> <span class="cm">add</span>(a, b): <span class="ck">return</span> a + b<br>'
+'add = <span class="cm">announce</span>(add)     <span class="cc"># rebind \'add\' to the wrapper</span></div>'
+'<div class="note-box">💡 Once you see <code>@deco</code> as <code>f = deco(f)</code>, every decorator '
+'behavior follows — including why the wrapper must accept and forward arguments, and why stacking order '
+'(Chunk D) is what it is.</div>'
+)
+
+# ── 1.3 the wrapper pattern ────────────────────────────────────────────
+md(
+'<h3 class="sub">🔹 1.3 &nbsp;The wrapper pattern (Session 5 forwarding)</h3>'
+'<div class="theory-box">The canonical decorator defines an inner <code>wrapper(*args, **kwargs)</code>, does '
+'something before and/or after, and calls the original with <strong>the exact arguments it received</strong> '
+'— the forwarding pattern from Session 5. It\'s a closure over <code>fn</code>.</div>'
+'<div class="code-block">'
+'<span class="ck">def</span> <span class="cm">announce</span>(fn):              <span class="cc"># takes the function</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">wrapper</span>(*args, **kwargs):  <span class="cc"># accepts ANY call (S5)</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">print</span>(<span class="cs">f"-> {fn.__name__}"</span>)<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result = fn(*args, **kwargs)      <span class="cc"># forward everything</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">print</span>(<span class="cs">f"&lt;- {fn.__name__}"</span>)<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> result                  <span class="cc"># don\'t forget to return it!</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> wrapper                     <span class="cc"># return the replacement</span><br>'
+'<br>'
+'<span class="cm">@announce</span><br>'
+'<span class="ck">def</span> <span class="cm">add</span>(a, b): <span class="ck">return</span> a + b<br>'
+'<span class="cm">add</span>(<span class="cn">2</span>, <span class="cn">3</span>)</div>'
+'<div class="output-block">-&gt; add<br>&lt;- add<br>5</div>'
+'<div class="why-box"><strong>Why <code>*args, **kwargs</code>:</strong> the decorator doesn\'t know the '
+'wrapped function\'s signature, so the wrapper accepts anything and passes it straight through. And it must '
+'<code>return</code> the original\'s result — a wrapper that forgets to return silently turns every call into '
+'<code>None</code> (a Chunk-D trap).</div>'
+)
+
+# ── 1.4 what a wrapper can do ──────────────────────────────────────────
+md(
+'<h3 class="sub">🔹 1.4 &nbsp;Four things a wrapper can do</h3>'
+'<div class="theory-box">Inside the wrapper you control the call completely — run code <strong>before</strong> '
+'and <strong>after</strong>, <strong>modify</strong> the arguments or the result, or <strong>short-circuit</strong> '
+'and skip the original entirely.</div>'
+'<div class="code-block">'
+'<span class="cc"># modify the result</span><br>'
+'<span class="ck">def</span> <span class="cm">double_result</span>(fn):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">wrapper</span>(*a, **k): <span class="ck">return</span> fn(*a, **k) * <span class="cn">2</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> wrapper<br>'
+'<span class="cm">@double_result</span><br>'
+'<span class="ck">def</span> <span class="cm">get_ten</span>(): <span class="ck">return</span> <span class="cn">10</span><br>'
+'<span class="cm">get_ten</span>()          <span class="cc"># 20</span><br>'
+'<br>'
+'<span class="cc"># short-circuit (guard): never call fn for bad input</span><br>'
+'<span class="ck">def</span> <span class="cm">require_positive</span>(fn):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">wrapper</span>(n):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">if</span> n &lt; <span class="cn">0</span>: <span class="ck">return</span> <span class="ck">None</span>       <span class="cc"># skip fn entirely</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> fn(n)<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> wrapper<br>'
+'<span class="cm">@require_positive</span><br>'
+'<span class="ck">def</span> <span class="cm">sqrt_int</span>(n): <span class="ck">return</span> <span class="cm">int</span>(n ** <span class="cn">0.5</span>)<br>'
+'<span class="cm">sqrt_int</span>(<span class="cn">16</span>), <span class="cm">sqrt_int</span>(-<span class="cn">4</span>)   <span class="cc"># (4, None)</span></div>'
+'<div class="output-block">get_ten: 20<br>sqrt_int: 4 None</div>'
+'<div class="note-box">💡 A <strong>timer</strong> decorator is the classic "before/after" case: record '
+'<code>time.perf_counter()</code> around the call and print the elapsed ms. (Timing varies per run, so we '
+'don\'t assert a fixed number.)</div>'
+'<hr class="divider">'
+'<div style="background:#1e1e2e; border-left:4px solid #cba6f7; padding:16px 20px; border-radius:8px; font-family:monospace; color:#cdd6f4;">'
+'<h4 style="color:#cba6f7; margin:0 0 12px 0;">🔑 Chunk A — Key Takeaways</h4>'
+'<ul style="margin:0; padding-left:20px; line-height:2.1">'
+'<li>A decorator is a callable that takes a function and returns a (usually wrapping) function</li>'
+'<li><code>@deco</code> above <code>def f</code> means <code>f = deco(f)</code> — pure sugar</li>'
+'<li>The wrapper is a closure over <code>fn</code>; use <code>*args, **kwargs</code> and <strong>return the result</strong></li>'
+'<li>A wrapper can run before/after, modify args/result, or short-circuit the call</li>'
+'</ul></div>'
+)
+
+# ══════════════════════════ CHUNK B ══════════════════════════
+md(
+'<div class="chunk-badge">Part 1 · Chunk B — <code>functools.wraps</code> &amp; Metadata</div>'
+'<h3 class="sub">🔹 1.5 &nbsp;The problem — a naive wrapper clobbers the function\'s identity</h3>'
+'<div class="theory-box">Since <code>@deco</code> rebinds the name to <code>wrapper</code>, the decorated '
+'function now <em>is</em> the wrapper — so its <code>__name__</code> becomes <code>"wrapper"</code>, its '
+'docstring is gone, and <code>help()</code> / debuggers / signature-introspecting frameworks see the wrong '
+'thing.</div>'
+'<div class="code-block">'
+'<span class="ck">def</span> <span class="cm">naive</span>(fn):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">wrapper</span>(*a, **k): <span class="ck">return</span> fn(*a, **k)<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> wrapper<br>'
+'<br>'
+'<span class="cm">@naive</span><br>'
+'<span class="ck">def</span> <span class="cm">greet</span>(name):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cs">"Return a greeting."</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> <span class="cs">f"Hi {name}"</span><br>'
+'<br>'
+'greet.__name__   <span class="cc"># \'wrapper\'  &lt;- clobbered!</span><br>'
+'greet.__doc__    <span class="cc"># None       &lt;- docstring lost</span></div>'
+'<div class="output-block">\'wrapper\'<br>None</div>'
+'<div class="why-box"><strong>Why it matters:</strong> logging that prints <code>fn.__name__</code> now says '
+'"wrapper" for every decorated function; <code>help(greet)</code> shows nothing useful; and tools that read '
+'signatures (pytest, FastAPI, dataclasses) misbehave. The identity leak silently breaks introspection.</div>'
+)
+
+md(
+'<h3 class="sub">🔹 1.6 &nbsp;<code>functools.wraps</code> — copy the original\'s metadata onto the wrapper</h3>'
+'<div class="theory-box">Decorate the <em>wrapper</em> with <code>@functools.wraps(fn)</code>. It copies '
+'<code>__name__</code>, <code>__doc__</code>, <code>__module__</code>, <code>__qualname__</code>, and '
+'<code>__dict__</code> from the original onto the wrapper — and sets <code>__wrapped__</code> to the original '
+'function.</div>'
+'<div class="code-block">'
+'<span class="ck">import</span> functools<br>'
+'<br>'
+'<span class="ck">def</span> <span class="cm">better</span>(fn):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@functools.wraps(fn)</span>      <span class="cc"># the one line that fixes everything</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">wrapper</span>(*a, **k): <span class="ck">return</span> fn(*a, **k)<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> wrapper<br>'
+'<br>'
+'<span class="cm">@better</span><br>'
+'<span class="ck">def</span> <span class="cm">greet</span>(name):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="cs">"Return a greeting."</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> <span class="cs">f"Hi {name}"</span><br>'
+'<br>'
+'greet.__name__   <span class="cc"># \'greet\'</span><br>'
+'greet.__doc__    <span class="cc"># \'Return a greeting.\'</span></div>'
+'<div class="output-block">\'greet\'<br>\'Return a greeting.\'</div>'
+'<div class="note-box">💡 Rule: <strong>every real decorator should use <code>@functools.wraps(fn)</code></strong> '
+'on its wrapper. It\'s one line and it keeps the decorated function honest to every tool that inspects it.</div>'
+)
+
+md(
+'<h3 class="sub">🔹 1.7 &nbsp;<code>__wrapped__</code> — recover the original</h3>'
+'<div class="theory-box"><code>wraps</code> also stores the undecorated function at '
+'<code>wrapper.__wrapped__</code>, so you (or a test) can reach past the decorator and call the raw '
+'function.</div>'
+'<div class="code-block">'
+'greet.__wrapped__.__name__   <span class="cc"># \'greet\' - the original</span><br>'
+'greet.__wrapped__(<span class="cs">"A"</span>)         <span class="cc"># \'Hi A\' - bypasses the wrapper</span></div>'
+'<div class="output-block">greet<br>Hi A</div>'
+'<div class="mut-grid">'
+'<div class="mut-card mc-mut"><div class="mc-title">❌ Without <code>@wraps</code></div>'
+'<div class="mc-body">__name__ = "wrapper"<br>__doc__ = None<br>help() useless<br>no __wrapped__</div></div>'
+'<div class="mut-card mc-imm"><div class="mc-title">✅ With <code>@wraps(fn)</code></div>'
+'<div class="mc-body">__name__ = "greet"<br>__doc__ preserved<br>help() correct<br>__wrapped__ = original</div></div>'
+'</div>'
+'<hr class="divider">'
+'<div style="background:#1e1e2e; border-left:4px solid #cba6f7; padding:14px 18px; border-radius:8px; font-family:monospace; color:#cdd6f4;">'
+'<h4 style="color:#cba6f7; margin:0 0 10px 0;">🔑 Chunk B — Key Takeaways</h4>'
+'<ul style="margin:0; padding-left:20px; line-height:2.0">'
+'<li>A naive wrapper replaces the function, clobbering <code>__name__</code>/<code>__doc__</code> — breaking introspection</li>'
+'<li><code>@functools.wraps(fn)</code> on the wrapper copies the original\'s metadata across</li>'
+'<li>It also sets <code>wrapper.__wrapped__</code> to the original, so you can recover it</li>'
+'<li>Always use <code>@wraps</code> in real decorators — it\'s one line</li>'
+'</ul></div>'
+)
+
+# ══════════════════════════ CHUNK C ══════════════════════════
+md(
+'<div class="chunk-badge">Part 1 · Chunk C — Decorators with Arguments</div>'
+'<h3 class="sub">🔹 1.8 &nbsp;The problem — <code>@repeat(3)</code> needs three layers</h3>'
+'<div class="theory-box">A plain decorator takes the function. But <code>@repeat(3)</code> takes an '
+'<em>argument</em> first. The trick: <code>@deco(arg)</code> means <code>deco(arg)</code> is called, and '
+'<strong>whatever it returns is the real decorator</strong> applied to the function. So you need three '
+'nested layers: a <strong>factory</strong> (takes args) → returns a <strong>decorator</strong> (takes fn) → '
+'returns a <strong>wrapper</strong> (takes the call).</div>'
+'<div class="code-block">'
+'<span class="ck">import</span> functools<br>'
+'<br>'
+'<span class="ck">def</span> <span class="cm">repeat</span>(n):                  <span class="cc"># 1) factory: takes the argument</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">decorator</span>(fn):          <span class="cc"># 2) decorator: takes the function</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@functools.wraps(fn)</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">wrapper</span>(*a, **k):    <span class="cc"># 3) wrapper: takes the call</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result = <span class="ck">None</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">for</span> _ <span class="ck">in</span> <span class="cm">range</span>(n): result = fn(*a, **k)<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> result<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> wrapper<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> decorator<br>'
+'<br>'
+'<span class="cm">@repeat(3)</span><br>'
+'<span class="ck">def</span> <span class="cm">greet</span>(name): <span class="cm">print</span>(<span class="cs">f"Hi {name}"</span>); <span class="ck">return</span> name<br>'
+'<span class="cm">greet</span>(<span class="cs">"A"</span>)   <span class="cc"># prints 3 times, returns "A"</span></div>'
+'<div class="output-block">Hi A<br>Hi A<br>Hi A<br>\'A\'</div>'
+'<div class="why-box"><strong>How <code>@repeat(3)</code> evaluates:</strong> it\'s '
+'<code>greet = repeat(3)(greet)</code>. <code>repeat(3)</code> runs first and returns <code>decorator</code>; '
+'then <code>decorator(greet)</code> returns <code>wrapper</code>. The extra layer exists <em>only</em> to '
+'capture the argument <code>n</code> in a closure.</div>'
+)
+
+md(
+'<h3 class="sub">🔹 1.9 &nbsp;A parameterized <code>retry</code> (real-world shape)</h3>'
+'<div class="code-block">'
+'<span class="ck">def</span> <span class="cm">retry</span>(times=<span class="cn">3</span>, exc=Exception):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">decorator</span>(fn):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@functools.wraps(fn)</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">wrapper</span>(*a, **k):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;last = <span class="ck">None</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">for</span> _ <span class="ck">in</span> <span class="cm">range</span>(times):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">try</span>: <span class="ck">return</span> fn(*a, **k)<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">except</span> exc <span class="ck">as</span> e: last = e<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">raise</span> last<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> wrapper<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> decorator<br>'
+'<br>'
+'<span class="cm">@retry(times=5)</span><br>'
+'<span class="ck">def</span> <span class="cm">flaky</span>(): ...   <span class="cc"># fails twice then succeeds -> "ok" after 3 tries</span></div>'
+'<div class="output-block">ok after 3 tries</div>'
+'<div class="note-box">💡 This is the <code>with_retry</code> closure from Session 5, now a real decorator: '
+'<code>@retry(times=5)</code>. The factory layer captures <code>times</code>/<code>exc</code>.</div>'
+)
+
+# ══════════════════════════ CHUNK D ══════════════════════════
+md(
+'<div class="chunk-badge">Part 1 · Chunk D — Stacking, Class-based, Methods &amp; stdlib</div>'
+'<h3 class="sub">🔹 1.10 &nbsp;Stacking decorators — bottom-up</h3>'
+'<div class="theory-box">Multiple decorators stack; they apply <strong>closest-to-the-function first</strong>. '
+'<code>@bold @italic def f</code> means <code>f = bold(italic(f))</code> — <code>italic</code> wraps first, '
+'<code>bold</code> wraps the result.</div>'
+'<div class="code-block">'
+'<span class="cm">@bold</span><br>'
+'<span class="cm">@italic</span><br>'
+'<span class="ck">def</span> <span class="cm">text</span>(): <span class="ck">return</span> <span class="cs">"hi"</span><br>'
+'<span class="cm">text</span>()   <span class="cc"># \'&lt;b&gt;&lt;i&gt;hi&lt;/i&gt;&lt;/b&gt;\'  -- italic inside, bold outside</span></div>'
+'<div class="output-block">&lt;b&gt;&lt;i&gt;hi&lt;/i&gt;&lt;/b&gt;</div>'
+'<div class="why-box"><strong>Why the order:</strong> read the stack bottom-up. The decorator nearest the '
+'<code>def</code> runs first, so its wrapping ends up <em>innermost</em>. Swap the two lines and you get '
+'<code>&lt;i&gt;&lt;b&gt;hi&lt;/b&gt;&lt;/i&gt;</code>.</div>'
+'<h3 class="sub">🔹 1.11 &nbsp;Class-based decorators (<code>__call__</code>)</h3>'
+'<div class="theory-box">A decorator can be a <strong>class</strong>: <code>__init__(self, fn)</code> stores the '
+'function, <code>__call__(self, *a, **k)</code> is the wrapper. Use this when the decorator needs '
+'first-class state or its own methods. Call <code>functools.update_wrapper(self, fn)</code> to preserve '
+'metadata (the class-form of <code>@wraps</code>).</div>'
+'<div class="code-block">'
+'<span class="ck">class</span> <span class="cm">CallCounter</span>:<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__init__</span>(self, fn):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.fn = fn; self.count = <span class="cn">0</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;functools.<span class="cm">update_wrapper</span>(self, fn)<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">__call__</span>(self, *a, **k):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.count += <span class="cn">1</span><br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> self.fn(*a, **k)<br>'
+'<br>'
+'<span class="cm">@CallCounter</span><br>'
+'<span class="ck">def</span> <span class="cm">hello</span>(): <span class="ck">return</span> <span class="cs">"hi"</span><br>'
+'<span class="cm">hello</span>(); <span class="cm">hello</span>(); hello.count   <span class="cc"># 2 (state lives on the instance)</span></div>'
+'<div class="output-block">2</div>'
+'<h3 class="sub">🔹 1.12 &nbsp;Decorating methods, &amp; the stdlib decorators you\'ll use</h3>'
+'<div class="theory-box">Decorating a method just works — <code>*args</code> captures <code>self</code> and forwards '
+'it. And you\'ll constantly use built-in decorators: <code>functools.lru_cache</code> (memoize), '
+'<code>@property</code>, <code>@staticmethod</code>, <code>@classmethod</code> (Session 7).</div>'
+'<div class="code-block">'
+'<span class="ck">from</span> functools <span class="ck">import</span> lru_cache<br>'
+'<span class="cm">@lru_cache(maxsize=<span class="ck">None</span>)</span><br>'
+'<span class="ck">def</span> <span class="cm">fib</span>(n): <span class="ck">return</span> n <span class="ck">if</span> n &lt; <span class="cn">2</span> <span class="ck">else</span> <span class="cm">fib</span>(n-<span class="cn">1</span>) + <span class="cm">fib</span>(n-<span class="cn">2</span>)<br>'
+'<span class="cm">fib</span>(<span class="cn">30</span>)              <span class="cc"># 832040 - exponential -> linear via caching</span><br>'
+'<span class="cm">fib</span>.cache_info()     <span class="cc"># CacheInfo(hits=28, misses=31, ...)</span></div>'
+'<div class="output-block">832040<br>CacheInfo(hits=28, misses=31, maxsize=None, currsize=31)</div>'
+'<div class="note-box">💡 <code>lru_cache</code> is the built-in version of your Session 5 <code>memoize</code> — but '
+'battle-tested (thread-safe, bounded, <code>cache_info()</code>). Prefer it over hand-rolling.</div>'
+# ── 2. Example ──
+'<div class="ex-header"><h2>2. Example</h2></div>'
+'<div class="ex-block"><div class="ex-title"><span class="ex-badge">Ex 1</span> Registry decorator (the plugin pattern)</div>'
+'<div class="code-block">'
+'registry = {}<br>'
+'<span class="ck">def</span> <span class="cm">register</span>(name):<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">deco</span>(fn): registry[name] = fn; <span class="ck">return</span> fn<br>'
+'&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> deco<br>'
+'<span class="cm">@register(<span class="cs">"add"</span>)</span><br>'
+'<span class="ck">def</span> <span class="cm">add</span>(a, b): <span class="ck">return</span> a + b<br>'
+'registry[<span class="cs">"add"</span>](<span class="cn">2</span>, <span class="cn">3</span>)   <span class="cc"># 5</span></div>'
+'<div class="output-block">5</div>'
+'<div class="note-box">A parameterized decorator that returns <code>fn</code> unchanged but records it — how command dispatchers, plugin systems, and web routers (<code>@app.route</code>) work.</div></div>'
+'<div class="ex-block"><div class="ex-title"><span class="ex-badge">Ex 2</span> Memoization with <code>lru_cache</code></div>'
+'<div class="code-block"><span class="ck">from</span> functools <span class="ck">import</span> lru_cache<br><span class="cm">@lru_cache</span><br><span class="ck">def</span> <span class="cm">fib</span>(n): <span class="ck">return</span> n <span class="ck">if</span> n &lt; <span class="cn">2</span> <span class="ck">else</span> <span class="cm">fib</span>(n-<span class="cn">1</span>)+<span class="cm">fib</span>(n-<span class="cn">2</span>)<br><span class="cm">fib</span>(<span class="cn">30</span>)   <span class="cc"># 832040</span></div>'
+'<div class="output-block">832040</div></div>'
+'<div class="ex-block"><div class="ex-title"><span class="ex-badge">Ex 3</span> Parameterized retry (factory)</div>'
+'<div class="code-block"><span class="cm">@retry(times=5)</span><br><span class="ck">def</span> <span class="cm">flaky</span>(): ...   <span class="cc"># retries up to 5x, returns on first success</span></div>'
+'<div class="output-block">ok after 3 tries</div></div>'
+'<div class="ex-block"><div class="ex-title"><span class="ex-badge">Ex 4</span> Stacking — compose behavior</div>'
+'<div class="code-block"><span class="cm">@bold</span><br><span class="cm">@italic</span><br><span class="ck">def</span> <span class="cm">text</span>(): <span class="ck">return</span> <span class="cs">"hi"</span><br><span class="cm">text</span>()   <span class="cc"># \'&lt;b&gt;&lt;i&gt;hi&lt;/i&gt;&lt;/b&gt;\'</span></div>'
+'<div class="output-block">&lt;b&gt;&lt;i&gt;hi&lt;/i&gt;&lt;/b&gt;</div></div>'
+# ── 3. Edge Cases ──
+'<div class="warn-header"><h2>3. Edge Cases</h2></div>'
+'<p style="color:#cdd6f4;font-family:\'Segoe UI\',sans-serif;font-size:0.92em;margin:0 0 12px 0">All outputs verified by running.</p>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 1</span> The wrapper forgets to <code>return</code></div>'
+'<div class="code-block"><span class="ck">def</span> <span class="cm">w</span>(*a, **k): fn(*a, **k)   <span class="cc"># no return -> every call yields None</span></div>'
+'<div class="output-block">add(2, 3) -> None</div>'
+'<div class="why-box"><strong>Why:</strong> the wrapper <em>is</em> the function now; if it doesn\'t return '
+'<code>fn(...)</code>\'s value, callers silently get <code>None</code>. The most common decorator bug.</div></div>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 2</span> Forgetting <code>@functools.wraps</code></div>'
+'<div class="code-block">greet.__name__   <span class="cc"># \'wrapper\' instead of \'greet\'; __doc__ lost</span></div>'
+'<div class="output-block">\'wrapper\'</div>'
+'<div class="why-box"><strong>Why:</strong> introspection, logging, and signature-reading frameworks break '
+'(Chunk B). Always <code>@wraps(fn)</code> the wrapper.</div></div>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 3</span> Stacking order matters</div>'
+'<div class="code-block"><span class="cm">@italic</span><br><span class="cm">@bold</span><br><span class="ck">def</span> <span class="cm">t</span>(): <span class="ck">return</span> <span class="cs">"hi"</span>   <span class="cc"># \'&lt;i&gt;&lt;b&gt;hi&lt;/b&gt;&lt;/i&gt;\' - swapped!</span></div>'
+'<div class="output-block">&lt;i&gt;&lt;b&gt;hi&lt;/b&gt;&lt;/i&gt;</div>'
+'<div class="why-box"><strong>Why:</strong> decorators apply bottom-up. Reordering the <code>@</code> lines '
+'changes the nesting — important when order is semantically meaningful (e.g. <code>@staticmethod</code> must '
+'be outermost, auth before caching, etc.).</div></div>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 4</span> A parameterized decorator used <em>without</em> <code>()</code></div>'
+'<div class="code-block"><span class="cm">@repeat</span>          <span class="cc"># BUG: missing (n) - passes the function AS n</span><br><span class="ck">def</span> <span class="cm">g</span>(name): <span class="ck">return</span> name<br>g(<span class="cs">"X"</span>)   <span class="cc"># returns a wrapper function, NOT "X"</span></div>'
+'<div class="output-block">&lt;class \'function\'&gt;   # g("X") is a function, not the expected result</div>'
+'<div class="why-box"><strong>Why:</strong> <code>@repeat</code> means <code>g = repeat(g)</code>, so the '
+'<em>function</em> becomes <code>n</code> and <code>g</code> becomes the inner <code>decorator</code>. Calls '
+'then misbehave silently. A parameterized decorator always needs the call: <code>@repeat(1)</code>, even for '
+'defaults — <code>@retry()</code>, not <code>@retry</code>.</div></div>'
+'<div class="edge-block"><div class="edge-title"><span class="edge-badge">Edge 5</span> <code>lru_cache</code> requires hashable arguments</div>'
+'<div class="code-block"><span class="cm">@lru_cache</span><br><span class="ck">def</span> <span class="cm">f</span>(x): <span class="ck">return</span> x<br>f([<span class="cn">1</span>, <span class="cn">2</span>])   <span class="cc"># TypeError: unhashable type: \'list\'</span></div>'
+'<div class="output-block">TypeError: unhashable type: \'list\'</div>'
+'<div class="why-box"><strong>Why (2B/2C callback):</strong> the cache keys on the arguments, so they must be '
+'hashable. Pass a tuple instead of a list, or don\'t cache functions that take mutable args.</div></div>'
+'<hr class="divider">'
+'<div class="info-box">📎 <strong>End of Part 1</strong> (Chunks A–D: the mechanism, <code>functools.wraps</code>, '
+'decorators with arguments, stacking / class-based / methods / stdlib, 4 examples, 5 edge cases). '
+'<strong>Part 2</strong> — Golden Rules → Common Traps → Exercise. <strong>Part 3</strong> — ML Real-World → '
+'Interview Q&amp;A → Summary Table.</div>'
+)
+
+# ══════════════════════════ PART 2 ══════════════════════════
+md(
+'<div class="info-box"><strong>Part 2:</strong> Golden Rules → Common Traps → Exercise</div>'
+'<div class="part-header"><h2>4. Golden Rules</h2></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 1</span> Always <code>@functools.wraps(fn)</code> the wrapper.</div>'
+'<div class="body-txt">Preserves <code>__name__</code>/<code>__doc__</code>/signature so introspection, logging, and frameworks keep working.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 2</span> Accept <code>*args, **kwargs</code> and <strong>return</strong> the result.</div>'
+'<div class="body-txt">The wrapper doesn\'t know the signature; forward everything, and don\'t drop the return value.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 3</span> A parameterized decorator needs three layers — and always call it with <code>()</code>.</div>'
+'<div class="body-txt">factory(args) → decorator(fn) → wrapper(call). Use <code>@retry()</code>, never bare <code>@retry</code>.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 4</span> Prefer stdlib decorators over hand-rolled ones.</div>'
+'<div class="body-txt"><code>functools.lru_cache</code> for memoization, <code>@property</code>, <code>@staticmethod</code> — battle-tested and clear.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 5</span> Mind stacking order — decorators apply bottom-up.</div>'
+'<div class="body-txt">Put order-sensitive ones deliberately (auth before cache, <code>@staticmethod</code> outermost).</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 6</span> Reach for a class-based decorator when it needs its own state or methods.</div>'
+'<div class="body-txt"><code>__init__(fn)</code> + <code>__call__</code> + <code>functools.update_wrapper(self, fn)</code>.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 7</span> Keep decorators focused &amp; transparent.</div>'
+'<div class="body-txt">One cross-cutting concern each (log, time, cache, retry). A decorator that changes behavior surprisingly is a debugging trap.</div></div>'
+'<div class="rule-block"><div class="rule-title"><span class="rule-badge">Rule 8</span> Cache only functions with hashable args.</div>'
+'<div class="body-txt"><code>lru_cache</code>/dict caches key on arguments — pass tuples, not lists (2B/2C).</div></div>'
+)
+
+md(
+'<div class="trap-header"><h2>5. Common Traps</h2></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 1</span> Wrapper forgets to <code>return</code>.</div>'
+'<div class="body-txt">Every decorated call silently yields <code>None</code>. <strong>Fix:</strong> <code>return fn(*a, **k)</code>.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 2</span> Forgetting <code>@wraps</code>.</div>'
+'<div class="body-txt"><code>__name__</code> becomes <code>"wrapper"</code>, docstring lost, introspection breaks. <strong>Fix:</strong> <code>@functools.wraps(fn)</code>.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 3</span> Parameterized decorator used without <code>()</code>.</div>'
+'<div class="body-txt"><code>@retry</code> passes the function as the first argument. <strong>Fix:</strong> <code>@retry()</code>.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 4</span> Wrong stacking order.</div>'
+'<div class="body-txt">Decorators apply bottom-up; reordering changes behavior. <strong>Fix:</strong> order them intentionally.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 5</span> Caching a function with unhashable args.</div>'
+'<div class="body-txt"><code>lru_cache</code> on a list-taking function → <code>TypeError</code>. <strong>Fix:</strong> tuples, or don\'t cache it.</div></div>'
+'<div class="trap-block"><div class="trap-title"><span class="trap-badge">Trap 6</span> <code>lru_cache</code> on a method holds instances alive.</div>'
+'<div class="body-txt">The cache keys on <code>self</code>, pinning every instance in memory (a leak). <strong>Fix:</strong> cache at module level, or use <code>cached_property</code> / a bounded cache keyed on real inputs.</div></div>'
+)
+
+md(
+'<div class="part-header"><h2>6. Exercise</h2></div>'
+'<div class="body-txt" style="margin-bottom:10px">Twelve problems, easy → hard, building up to parameterized, class-based, and introspection decorators. Attempt each in <code>01_decorators.ipynb</code>; hints only here — full solutions in <code>solutions.ipynb</code>.</div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-easy">Easy</span> E1 — <code>logged</code>: print "calling &lt;name&gt;" then return the result</div><div class="hint-box">💡 Wrapper prints <code>fn.__name__</code>, then <code>return fn(*a, **k)</code>. Use <code>@wraps</code>.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-easy">Easy</span> E2 — Add <code>@functools.wraps</code> so <code>__name__</code>/<code>__doc__</code> survive</div><div class="hint-box">💡 Decorate the inner <code>wrapper</code> with <code>@functools.wraps(fn)</code>; verify the name/doc.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-easy">Easy</span> E3 — <code>debug</code>: print the call args and the result</div><div class="hint-box">💡 Print <code>fn.__name__</code> + <code>args</code>, compute the result, print it, then return it.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E4 — <code>timer</code>: print elapsed ms around the call</div><div class="hint-box">💡 <code>time.perf_counter()</code> before/after; return the original result. (Timing varies — don\'t assert it.)</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E5 — <code>collect(n)</code>: call the function <code>n</code> times, return the <strong>list</strong> of all results</div><div class="hint-box">💡 3-layer factory; the wrapper returns <code>[fn(*a, **k) for _ in range(n)]</code>. (A variation on repeat — collect, don\'t discard.)</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E6 — <code>default_on_error(default)</code>: return <code>default</code> if the function raises</div><div class="hint-box">💡 Parameterized (3 layers); <code>try: return fn(...)</code> / <code>except Exception: return default</code>. e.g. <code>@default_on_error(-1)</code> on a divide.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E7 — <code>memoize</code>: cache results keyed by <code>args</code> (with <code>@wraps</code>)</div><div class="hint-box">💡 Closure over a <code>cache</code> dict; key = <code>args</code> tuple. Then compare with <code>functools.lru_cache</code>.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-med">Medium</span> E8 — <code>require_nonneg</code>: raise <code>ValueError</code> if any numeric arg &lt; 0</div><div class="hint-box">💡 Scan <code>args</code>; on a negative number raise, else forward.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-hard">Hard</span> E9 — <code>count_calls</code>: expose the call count as <code>fn.calls</code></div><div class="hint-box">💡 Hang a <code>wrapper.calls</code> attribute on the wrapper; increment it each call.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-hard">Hard</span> E10 — <code>Memoize</code>: a <strong>class-based</strong> caching decorator with an inspectable <code>.cache</code></div><div class="hint-box">💡 <code>__init__(self, fn)</code> stores <code>fn</code> + a <code>cache</code> dict; <code>__call__(self, *a)</code> caches by args; <code>functools.update_wrapper(self, fn)</code>. (Class-based, but caching — not counting.)</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-hard">Hard</span> E11 — <code>tag(*labels)</code>: attach <code>fn.tags = labels</code> and return the function unchanged</div><div class="hint-box">💡 A factory taking <code>*labels</code>; the inner decorator sets an attribute and returns <code>fn</code> (no wrapper). Useful for discovery/metadata.</div></div>'
+'<div class="exr-block"><div class="exr-title"><span class="cc-badge badge-hard">Hard</span> E12 — <code>validate_types</code>: enforce parameter annotations at call time</div><div class="hint-box">💡 Use <code>inspect.signature(fn).bind(*a, **k)</code> and <code>fn.__annotations__</code>; raise <code>TypeError</code> on a type mismatch.</div></div>'
+)
+
+# ══════════════════════════ PART 3 ══════════════════════════
+md(
+'<div class="info-box"><strong>Part 3:</strong> ML Real-World → Interview Q&amp;A → Code Challenges → Summary</div>'
+'<div class="ml-header"><h2>7. ML Real-World Connection</h2></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 1</span> Cross-cutting concerns without touching model code</div>'
+'<div class="body-txt">Timing a training step, logging inputs/outputs, or <code>@torch.no_grad()</code> on an eval function — all bolt behavior on without editing the core logic. Decorators are how frameworks add these uniformly.</div></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 2</span> Caching expensive computation</div>'
+'<div class="body-txt"><code>@lru_cache</code> / <code>@functools.cache</code> on feature computations, tokenizer lookups, or config parsing turns repeated work into O(1) hits — your Session 5 <code>memoize</code>, now battle-tested.</div></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 3</span> Retry decorators for flaky I/O</div>'
+'<div class="body-txt"><code>@retry(times=5)</code> around dataset downloads, model-registry pulls, or API calls — the resilience layer of any data pipeline (tenacity is this, productized).</div></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 4</span> Registry / plugin decorators</div>'
+'<div class="body-txt"><code>@register_model("resnet")</code>, <code>@app.route(...)</code>, Keras\'s <code>@register_keras_serializable</code> — the factory-decorator-into-a-dict pattern is everywhere in ML frameworks and serving.</div></div>'
+'<div class="ml-block"><div class="ml-title"><span class="ml-badge">ML 5</span> Validation &amp; computed attributes</div>'
+'<div class="body-txt">Type/shape-checking decorators guard tensor inputs; <code>@property</code> exposes computed model attributes (Session 7). Both keep call sites clean while enforcing contracts.</div></div>'
+)
+
+md(
+'<div class="interview-header"><h2>8. Interview Questions</h2></div>'
+'<div class="sub-header"><h3>8a — Conceptual Q&amp;A</h3></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">1</span> What is a decorator?</div><div class="qa-a">A callable that takes a function and returns a (usually wrapping) function, adding behavior without editing the original. Enabled by first-class functions + closures (Session 5).</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">2</span> What does <code>@deco</code> desugar to?</div><div class="qa-a"><code>f = deco(f)</code> — it calls the decorator on the function and rebinds the name to the result.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">3</span> Why does the wrapper use <code>*args, **kwargs</code>?</div><div class="qa-a">The decorator doesn\'t know the wrapped function\'s signature, so the wrapper accepts any call and forwards it unchanged — and must <code>return</code> the result.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">4</span> What does <code>functools.wraps</code> do and why use it?</div><div class="qa-a">Copies <code>__name__</code>/<code>__doc__</code>/<code>__qualname__</code>/<code>__dict__</code> from the original onto the wrapper and sets <code>__wrapped__</code>. Without it, introspection, logging, and signature-reading frameworks break.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">5</span> How does a decorator with arguments work?</div><div class="qa-a">Three layers: a factory takes the args and returns a decorator, which takes the function and returns a wrapper. <code>@deco(x)</code> is <code>f = deco(x)(f)</code>.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">6</span> In what order do stacked decorators apply?</div><div class="qa-a">Bottom-up — the one closest to <code>def</code> wraps first. <code>@a @b def f</code> is <code>f = a(b(f))</code>.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">7</span> When would you use a class-based decorator?</div><div class="qa-a">When it needs first-class state or its own methods: <code>__init__(self, fn)</code> stores it, <code>__call__</code> is the wrapper; use <code>functools.update_wrapper(self, fn)</code>.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">8</span> Difference between <code>@deco</code> and <code>@deco()</code>?</div><div class="qa-a"><code>@deco</code> applies the decorator directly; <code>@deco()</code> calls a <em>factory</em> first, then applies its result. A parameterized decorator always needs the <code>()</code>.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">9</span> What is <code>__wrapped__</code>?</div><div class="qa-a">The attribute <code>functools.wraps</code> sets to the original, undecorated function — lets you bypass the decorator or unwrap for testing.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">10</span> Why does <code>lru_cache</code> need hashable args, and what\'s the method-leak risk?</div><div class="qa-a">It keys the cache on the arguments (must be hashable). On a method it keys on <code>self</code>, keeping every instance alive — a memory leak.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">11</span> Most common decorator bug?</div><div class="qa-a">The wrapper forgetting to <code>return fn(...)</code> — every decorated call silently returns <code>None</code>.</div></div>'
+'<div class="qa-block"><div class="qa-q"><span class="q-num">12</span> How do you write a decorator usable both as <code>@deco</code> and <code>@deco(arg)</code>?</div><div class="qa-a">Make the first parameter default to <code>None</code>: if the function was passed, decorate it; if not, return the decorator. (See challenge C8.)</div></div>'
+)
+
+md(
+'<div class="sub-header"><h3>8b — Code Challenges (attempt, then expand the solution)</h3></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-easy">Easy</span> C1 — <code>uppercase(fn)</code>: uppercase a string result</div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">from</span> functools <span class="ck">import</span> wraps<br><span class="ck">def</span> <span class="cm">uppercase</span>(fn):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@wraps(fn)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">w</span>(*a, **k): <span class="ck">return</span> fn(*a, **k).upper()<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> w</div><div class="qa-a">Post-process the result. <code>greet("bob")</code> → <code>"HI BOB"</code>.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-easy">Easy</span> C2 — <code>add_prefix(prefix)</code>: parameterized; prefix a string result</div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">def</span> <span class="cm">add_prefix</span>(prefix):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">d</span>(fn):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@wraps(fn)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">w</span>(*a, **k): <span class="ck">return</span> prefix + fn(*a, **k)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> w<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> d</div><div class="qa-a">3-layer factory. <code>@add_prefix(">> ")</code> then <code>msg()</code> → <code>">> go"</code>.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-med">Med</span> C3 — <code>call_limit(n)</code>: allow n calls, then raise</div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">def</span> <span class="cm">call_limit</span>(n):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">d</span>(fn):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;calls = <span class="cn">0</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@wraps(fn)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">w</span>(*a, **k):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nonlocal</span> calls<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">if</span> calls &gt;= n: <span class="ck">raise</span> RuntimeError(<span class="cs">"call limit exceeded"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;calls += <span class="cn">1</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> fn(*a, **k)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> w<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> d</div><div class="qa-a">Closure state (<code>calls</code>) + <code>nonlocal</code>. The 3rd <code>ping()</code> raises.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-med">Med</span> C4 — <code>audit(fn)</code>: record each <code>(args, result)</code> into <code>fn.log</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">def</span> <span class="cm">audit</span>(fn):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@wraps(fn)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">w</span>(*a, **k):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;r = fn(*a, **k); w.log.append((a, r)); <span class="ck">return</span> r<br>&nbsp;&nbsp;&nbsp;&nbsp;w.log = []<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> w</div><div class="qa-a">Attribute on the wrapper as an audit trail → <code>[((1,2),3), ((3,4),7)]</code>.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-med">Med</span> C5 — <code>enforce_return_type(t)</code>: raise if the result isn\'t type <code>t</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">def</span> <span class="cm">enforce_return_type</span>(t):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">d</span>(fn):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@wraps(fn)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">w</span>(*a, **k):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;r = fn(*a, **k)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">if</span> <span class="ck">not</span> <span class="cm">isinstance</span>(r, t): <span class="ck">raise</span> TypeError(<span class="cs">f"return must be {t.__name__}"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> r<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> w<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> d</div><div class="qa-a">Post-condition check on the return value. Complements the exercise\'s argument-type check (E12).</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-med">Med</span> C6 — <code>ignore_exceptions(*excs)</code>: swallow the given types, return <code>None</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">def</span> <span class="cm">ignore_exceptions</span>(*excs):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">d</span>(fn):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@wraps(fn)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">w</span>(*a, **k):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">try</span>: <span class="ck">return</span> fn(*a, **k)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">except</span> excs: <span class="ck">return</span> <span class="ck">None</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> w<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> d</div><div class="qa-a"><code>except excs</code> catches only the listed types (a tuple) — others propagate. Note: catches specific types, unlike the exercise\'s catch-all fallback.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-hard">Hard</span> C7 — <code>memoize_full(fn)</code>: cache keyed by args <em>and</em> kwargs</div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">def</span> <span class="cm">memoize_full</span>(fn):<br>&nbsp;&nbsp;&nbsp;&nbsp;cache = {}<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@wraps(fn)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">w</span>(*a, **k):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key = (a, <span class="cm">frozenset</span>(k.items()))   <span class="cc"># hashable key from kwargs</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">if</span> key <span class="ck">not in</span> cache: cache[key] = fn(*a, **k)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> cache[key]<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> w</div><div class="qa-a">Extends the args-only memoize: <code>frozenset(k.items())</code> makes kwargs hashable (2C). <code>combine(1, b=2)</code> hits the cache on repeat.</div></details></div>'
+'<div class="cc-block"><div class="cc-title"><span class="cc-badge badge-hard">Hard</span> C8 — <code>smart(fn=None, *, prefix=">>")</code>: works both as <code>@smart</code> and <code>@smart(prefix=...)</code></div>'
+'<details class="sol"><summary>Solution</summary><div class="code-block"><span class="ck">def</span> <span class="cm">smart</span>(fn=<span class="ck">None</span>, *, prefix=<span class="cs">">>"</span>):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">decorator</span>(f):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">@wraps(f)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">def</span> <span class="cm">w</span>(*a, **k): <span class="ck">return</span> prefix + <span class="cm">str</span>(f(*a, **k))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> w<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> decorator <span class="ck">if</span> fn <span class="ck">is</span> <span class="ck">None</span> <span class="ck">else</span> decorator(fn)</div><div class="qa-a">The optional-argument pattern: if called as <code>@smart</code>, <code>fn</code> is the function → decorate it; if called as <code>@smart(prefix="!! ")</code>, <code>fn</code> is <code>None</code> → return the decorator. <code>prefix</code> is keyword-only so it can\'t be confused with <code>fn</code>.</div></details></div>'
+)
+
+md(
+'<div class="summary-header"><h2>9. Summary Table — Session 6</h2></div>'
+'<table class="summary">'
+'<tr><th>Concept</th><th>Why it matters in ML</th><th>Interview frequency</th></tr>'
+'<tr><td>Decorator mechanism (<code>f = deco(f)</code>)</td><td>Cross-cutting concerns without editing code</td><td><span class="freq-vh">Very High</span></td></tr>'
+'<tr><td>The wrapper pattern (<code>*args/**kwargs</code> + return)</td><td>Generic wrappers over any function</td><td><span class="freq-vh">Very High</span></td></tr>'
+'<tr><td><code>functools.wraps</code></td><td>Preserving identity for logging/introspection</td><td><span class="freq-h">High</span></td></tr>'
+'<tr><td>Decorators with arguments (3 layers)</td><td><code>@retry(times=5)</code>, <code>@register("name")</code></td><td><span class="freq-vh">Very High</span></td></tr>'
+'<tr><td>Stacking order</td><td>Composing behavior (auth → cache → time)</td><td><span class="freq-m">Medium</span></td></tr>'
+'<tr><td>Class-based decorators</td><td>Stateful decorators (counters, caches)</td><td><span class="freq-m">Medium</span></td></tr>'
+'<tr><td><code>lru_cache</code> / memoization</td><td>Caching features, embeddings, configs</td><td><span class="freq-vh">Very High</span></td></tr>'
+'<tr><td>Registry / plugin decorators</td><td>Model/route registries in frameworks</td><td><span class="freq-h">High</span></td></tr>'
+'<tr><td>Optional-argument decorator</td><td>Ergonomic library APIs (<code>@deco</code> or <code>@deco()</code>)</td><td><span class="freq-m">Medium</span></td></tr>'
+'</table>'
+'<hr class="divider">'
+'<div style="background:#1e1e2e; border-left:4px solid #a6e3a1; padding:14px 18px; border-radius:8px; font-family:monospace; color:#cdd6f4;">'
+'<strong style="color:#a6e3a1">✅ Session 6 complete.</strong> Decorators end to end: the mechanism, the '
+'wrapper pattern, <code>functools.wraps</code>, decorators with arguments, stacking, class-based decorators, '
+'stdlib decorators, 4 examples, 5 edge cases, 8 golden rules, 6 traps, 12 exercises, ML connections, 12 '
+'conceptual Q&amp;A, 8 code challenges, summary table.<br>'
+'<span style="color:#6c7086">Next — Session 7: OOP &amp; dunder methods (classes, inheritance, '
+'<code>__init__</code>/<code>__repr__</code>/<code>__eq__</code>, plus GIL &amp; CPU-bound threading). '
+'<code>@property</code>/<code>@staticmethod</code>/<code>@classmethod</code> land there — decorators applied to methods.</span></div>'
+)
+
+nb = new_notebook(cells=cells)
+nb.metadata["kernelspec"] = {"display_name": "Python 3", "language": "python", "name": "python3"}
+nb.metadata["language_info"] = {"name": "python"}
+nbf.write(nb, "theory.ipynb")
+print("wrote theory.ipynb with", len(cells), "cells")
