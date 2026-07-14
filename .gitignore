@@ -1,0 +1,9 @@
+# Python caches
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# scratch / verification files
+_v.py
